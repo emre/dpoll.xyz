@@ -182,7 +182,7 @@ def detail(request, user, permlink):
     for choice in choices:
         choice_data = choice
         if choice.votes:
-            choice_data.percent = 100 * choice.votes / all_votes
+            choice_data.percent = round(100 * choice.votes / all_votes, 2)
         else:
             choice_data.percent = 0
         choice_list.append(choice_data)
