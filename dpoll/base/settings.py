@@ -134,3 +134,7 @@ MESSAGE_TAGS = {
 
 COMMUNITY_TAG = "dpoll"
 DEFAULT_TAGS = ["dpoll", "poll"]
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "assets"),
+]
