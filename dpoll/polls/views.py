@@ -231,7 +231,7 @@ def vote(request, user, permlink):
             question=poll).exists():
         messages.add_message(
             request,
-            messages.SUCCESS,
+            messages.ERROR,
             "You have already voted for this poll!"
         )
         return redirect("detail", poll.username, poll.permlink)
