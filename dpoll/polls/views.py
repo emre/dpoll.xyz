@@ -93,7 +93,7 @@ def create_poll(request):
                     f"At least 2 choices are required."
                 )
                 error = True
-            elif len(choices) > 5:
+            elif len(choices) > 10:
                 messages.add_message(
                     request,
                     messages.ERROR,
