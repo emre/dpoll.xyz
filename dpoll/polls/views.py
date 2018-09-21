@@ -235,7 +235,7 @@ def vote(request, user, permlink):
     if not poll.is_votable():
         messages.add_message(
             request,
-            messages.SUCCESS,
+            messages.ERROR,
                 "This poll is expired!"
         )
         return redirect("detail", poll.username, poll.permlink)

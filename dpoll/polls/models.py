@@ -22,7 +22,7 @@ class Question(models.Model):
         unique_together = ('username', 'permlink')
 
     def is_votable(self):
-        return self.expire_at < timezone.now()
+        return self.expire_at > timezone.now()
 
 
 class Choice(models.Model):
