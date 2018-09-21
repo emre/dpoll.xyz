@@ -252,12 +252,6 @@ def vote(request, user, permlink):
 
     choice.voted_users.add(request.user)
 
-    messages.add_message(
-        request,
-        messages.SUCCESS,
-        "You have sucessfully voted!"
-    )
-
     # send it to the steem blockchain
     sc_client = Client(access_token=request.session.get("sc_token"))
     comment = Comment(
@@ -284,5 +278,11 @@ def vote(request, user, permlink):
         choice.voted_users.remove(request.user)
 
         return redirect('create-poll')
+
+    messages.add_message(
+        request,
+        messages.SUCCESS,
+        "You have sucessfully voted!"
+    )
 
     return redirect("detail", poll.username, poll.permlink)
