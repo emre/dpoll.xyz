@@ -209,6 +209,10 @@ def vote(request, user, permlink):
     if request.method != "POST":
         raise Http404
 
+    # django admin users should not be able to vote.
+    if not request.session.get("sc_token"):
+        redirect('logout')
+
     try:
         poll = Question.objects.get(username=user, permlink=permlink)
     except Question.DoesNotExist:
