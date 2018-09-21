@@ -138,3 +138,5 @@ DEFAULT_TAGS = ["dpoll", "poll"]
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "assets"),
 ]
+
+SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
