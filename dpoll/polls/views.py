@@ -277,7 +277,7 @@ def vote(request, user, permlink):
         )
         choice.voted_users.remove(request.user)
 
-        return redirect('create-poll')
+        return redirect("detail", poll.username, poll.permlink)
 
     messages.add_message(
         request,
