@@ -149,7 +149,7 @@ def create_poll(request):
         comment = Comment(
             author=request.user.username,
             permlink=question.permlink,
-            body=get_body(question, choices, permlink),
+            body=get_body(question, choices, request.user.username, permlink),
             title=question.text,
             parent_permlink=settings.COMMUNITY_TAG,
             json_metadata={
