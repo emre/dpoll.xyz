@@ -98,14 +98,37 @@
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right  ">
-                {% if request.user.is_authenticated %}
-                    <li><a href="{% url 'create-poll' %}"><strong>Create
-                        Poll</strong></a></li>
-                    <li><a href="{% url 'logout' %}">Logout</a></li>
-                {% else %}
+                {% if not request.user.is_authenticated %}
                     <li><a href="{% url 'login' %}">Login</a></li>
                 {% endif %}
+
+                {% if request.user.is_authenticated %}
+
+                    <li class="dropdown">
+                        <a data-toggle="dropdown" class="dropdown-toggle"
+                           href="#">
+                            <span class="profile-ava">
+                                <img alt=""
+                                     src="https://steemitimages.com/u/{{ request.user.username }}/avatar/small"
+                                     width="34px">
+                            </span>
+                            <span class="username">@{{ request.user.username }}</span>
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu extended logout">
+                            <div class="log-arrow-up"></div>
+                            <li><a href="{% url 'create-poll' %}"><strong>Create
+                                Poll</strong></a></li>
+                            <li>
+                                <a href="https://steemit.com/@{{ request.user.username }}">STEEM
+                                    Profile</a></li>
+                            <li><a href="{% url 'logout' %}">Logout</a></li>
+                        </ul>
+                    </li>
+                {% endif %}
             </ul>
+
+
         </div>
 
     </div>
@@ -116,7 +139,7 @@
         <div class="col-md-6 center-block" style="float:none;"
         ">
         <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-    </div></div>
+    </div>
 {% endfor %}
 {% block content %}
 
