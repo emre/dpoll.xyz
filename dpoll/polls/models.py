@@ -9,14 +9,17 @@ class User(AbstractUser):
 
 class Question(models.Model):
     text = models.CharField(max_length=255)
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
     expire_at = models.DateTimeField('Expiration date')
-    user = models.ForeignKey(User, blank=True, null=True,
-                             on_delete=models.CASCADE)
-    permlink = models.CharField(max_length=255, blank=True, null=True)
+    username = models.CharField(max_length=255)
+    permlink = models.CharField(max_length=255, blank=True, null=True,
+                                db_index=True)
 
     def __str__(self):
         return self.text
+
+    class Meta:
+        unique_together = ('username', 'permlink')
 
     def is_votable(self):
         return self.expire_at < timezone.now()
@@ -25,7 +28,11 @@ class Question(models.Model):
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     text = models.CharField(max_length=200)
-    votes = models.IntegerField(default=0)
+    voted_users = models.ManyToManyField(User)
+
+    @property
+    def votes(self):
+        return self.voted_users.all().count()
 
     def __str__(self):
         return self.text

@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 
 class SteemConnectBackend:
 
-    def authenticate(self, **kwargs):
+    def authenticate(self, request, **kwargs):
 
         if 'username' in kwargs:
             return None
@@ -18,12 +18,14 @@ class SteemConnectBackend:
 
         user_model = get_user_model()
         try:
-            user = user_model.objects.get(username=user["name"])
+            user_instance = user_model.objects.get(username=user["name"])
+            user_instance.token = kwargs.get("access_token")
+            user_instance.save()
         except user_model.DoesNotExist:
-            user = user_model.objects.create_user(
+            user_instance = user_model.objects.create_user(
                 username=user["name"],
-                name=user["name"])
-        return user
+                token=kwargs.get("access_token"))
+        return user_instance
 
     def get_user(self, user_id):
         user_model = get_user_model()

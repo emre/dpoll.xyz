@@ -123,3 +123,12 @@ AUTHENTICATION_BACKENDS = [
     'polls.auth_backend.SteemConnectBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+from django.contrib import messages
+
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger'
+}
+
+COMMUNITY_TAG = "dpoll"
+DEFAULT_TAGS = ["dpoll", "poll"]

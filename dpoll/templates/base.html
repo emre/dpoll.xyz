@@ -14,8 +14,7 @@
           integrity="sha384-Tfj13fqQQqqzQFuaZ81WDzmmOU610WeS08VMuHmElK5oI2f7NwojuL6VupYXR/jK"
           crossorigin="anonymous">
     <style>
-        div
-        {
+        div {
             font-size: 16px;
         }
 
@@ -93,22 +92,34 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#"><img
+            <a class="navbar-brand" href="/"><img
                     src="https://cdn.steemitimages.com/DQmRS1td9zMErNTuHoKQSFdbE7SmjW1yB9i3MoHKoPdGQ1C/dpoll-3.png"
                     width="64px"></a>
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right  ">
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Login</a></li>
-                <li><a href="#">Latest polls</a></li>
+                {% if request.user.is_authenticated %}
+                    <li><a href="{% url 'create-poll' %}"><strong>Create
+                        Poll</strong></a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'login' %}">Login</a></li>
+                {% endif %}
             </ul>
         </div>
 
     </div>
 </div>
 <!-- NAVBAR CODE END -->
+{% for message in messages %}
+    <div class="container">
+        <div class="col-md-6 center-block" style="float:none;"
+        ">
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    </div></div>
+{% endfor %}
 {% block content %}
+
     <div class="container">
         Hi!
     </div>
@@ -118,6 +129,7 @@
         src="https://code.jquery.com/jquery-3.3.1.min.js"
         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
         crossorigin="anonymous"></script>
+{% block extra_js %} {% endblock %}
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"
         integrity="sha384-4Kp4aQ6UNeqsJ/ithPcxYnnIGt/QJJ64J9QtfDAJZUTaePAIPm9aaBdu7Gw84oGs"
         crossorigin="anonymous"></script>

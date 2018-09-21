@@ -2,77 +2,66 @@
 
 {% block content %}
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-12 text-center">
-            <h2>Who will win the hackathon?</h2>
-            <h6>Asked by <a
-                    href="http://steemit.com/@emrebeyler/">@emrebeyler</a></h6>
-            <br/>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <h2>{{ poll.text }}</h2>
+                <h6>Asked by <a
+                        href="http://steemit.com/@{{ poll.username }}/">{{ poll.username }}</a>
+                </h6>
+                <br/>
+            </div>
         </div>
-    </div>
-    <div class="row ">
-        <div class="col-md-4 col-md-offset-4">
-            <div class="user-poll-section">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        We have lots of great devs. Who do you think will win
-                        the hackathon?
+        <div class="row ">
+            <div class="col-md-4 col-md-offset-4">
+                <div class="user-poll-section">
+                    <div class="panel panel-default">
+                        <form method="POST"
+                              action="{% url 'vote' poll.username poll.permlink %}">
+                            {% csrf_token %}
+                            <div class="panel-body">
 
-                    </div>
-                    <div class="panel-body">
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="group-poll">
-                                <strong> </strong>@emrebeyler
-                            </label>
-                        </div>
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="group-poll">
-                                <strong></strong>@tensor
-                            </label>
-                        </div>
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="group-poll">
-                                <strong> </strong>@amos
-                            </label>
-                        </div>
-                        <div class="panel-default">
-                            <a href="#" class="btn btn-primary"> Vote</a>
-                        </div>
-                        <hr/>
+                                {% for choice in choices %}
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="choice-id"
+                                                   id="choice_id_{{ choice.id }}"
+                                                   value="{{ choice.id }}"
+                                                    {% if user_vote.id == choice.id %}
+                                                   checked="true"{% endif %}>
+                                            <strong> </strong>{{ choice.text }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
 
-                        <h5 class="text-danger">Results</h5>
-                        <hr/>
-                        amos (60%) :
-                        <div class="progress progress-striped active">
-                            <div class="progress-bar progress-bar-danger"
-                                 role="progressbar" aria-valuenow="60"
-                                 aria-valuemin="0" aria-valuemax="100"
-                                 style="width: 60%">
-                                <span class="sr-only">60% Complete (success)</span>
-                            </div>
-                        </div>
-                        emrebeyler (30%) :
-                        <div class="progress progress-striped active">
-                            <div class="progress-bar progress-bar-warning"
-                                 role="progressbar" aria-valuenow="30"
-                                 aria-valuemin="0" aria-valuemax="100"
-                                 style="width: 30%">
-                                <span class="sr-only">30% Complete (success)</span>
-                            </div>
-                        </div>
-                        tensor (10%) :
-                        <div class="progress progress-striped active">
-                            <div class="progress-bar progress-bar-success"
-                                 role="progressbar" aria-valuenow="10"
-                                 aria-valuemin="0" aria-valuemax="100"
-                                 style="width: 10%">
-                                <span class="sr-only">10% Complete (success)</span>
-                            </div>
-                        </div>
+                                <div class="panel-default">
+                                    <button type="submit"
+                                            class="btn btn-primary"
+                                            {% if user_vote %}disabled{% endif %}>
+                                        Vote
+                                    </button>
+                                </div>
+                                <hr/>
+                        </form>
+
+
+                        {% if not total_votes %}
+                            <em>No votes, yet...</em>
+                        {% else %}
+                            <h5 class="text-danger">Results</h5>
+                            <hr/>
+                            {% for choice in choices %}
+                                {{ choice.text }}({{ choice.percent }}%) :
+                                <div class="progress progress-striped active">
+                                    <div class="progress-bar progress-bar-success"
+                                         role="progressbar" aria-valuenow="10"
+                                         aria-valuemin="0" aria-valuemax="100"
+                                         style="width: {{ choice.percent }}%">
+                                        <span class="sr-only">{{ choice.percent }}% Complete (success)</span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
                     </div>
 
                 </div>
@@ -81,6 +70,6 @@
             <!-- POLL DIV END-->
         </div>
     </div>
-</div>
+    </div>
 
 {% endblock content %}
