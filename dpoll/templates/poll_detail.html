@@ -51,7 +51,14 @@
                             <h5 class="text-danger">Results</h5>
                             <hr/>
                             {% for choice in choices %}
-                                {{ choice.text }}({{ choice.percent }}%) :
+                                {{ choice.text }}
+                                <small><em>({{ choice.percent }}%)</em>
+                                    <span class="pull-right"> <a
+                                            data-toggle="modal"
+                                            data-target="#voter-list-{{ choice.id }}">
+                                         {{ choice.votes }} Voters
+                                    </a></span>
+                                </small>
                                 <div class="progress progress-striped active">
                                     <div class="progress-bar progress-bar-success"
                                          role="progressbar" aria-valuenow="10"
@@ -72,4 +79,43 @@
     </div>
     </div>
 
+
+    {% for choice in choices %}
+        <div class="modal fade" id="voter-list-{{ choice.id }}" tabindex="-1"
+             role="dialog"
+             aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"
+                                aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel">Accounts voted
+                            for '{{ choice.text }}'</h4>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th scope="col">Account</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for user in choice.voted_users.all %}
+                                <tr>
+                                    <td>@{{ user.username }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default"
+                                data-dismiss="modal">Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
 {% endblock content %}
