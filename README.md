@@ -1,3 +1,6 @@
+<center><img src="https://cdn.steemitimages.com/DQmRS1td9zMErNTuHoKQSFdbE7SmjW1yB9i3MoHKoPdGQ1C/dpoll-3.png"></center>
+
+
 #### dpoll
 
 dpoll is a decentralized poll app on the top STEEM blockchain. Initially created at the [Utopian Hackathon 2018](https://steemit.com/fundition-ffdnxgdga/@steemstem/utopian-hackathon-revealing-date-topic-prizes-and-more-details-on-the-first-utopian-io-community-hackathon)
