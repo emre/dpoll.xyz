@@ -93,11 +93,11 @@ def create_poll(request):
                     f"At least 2 choices are required."
                 )
                 error = True
-            elif len(choices) > 10:
+            elif len(choices) > 20:
                 messages.add_message(
                     request,
                     messages.ERROR,
-                    f"Maximum number of choices is 5."
+                    f"Maximum number of choices is 20."
                 )
                 error = True
         if 'expire-at' in request.POST:
