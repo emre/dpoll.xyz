@@ -1,176 +1,186 @@
 <html>
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1"/>
+  <meta charset="utf-8"/>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"/>
 
-    <link rel="icon" type="image/png"
-          href="https://dpoll.xyz/static/favicon-32x32.png" sizes="32x32"/>
-    <link rel="icon" type="image/png"
-          href="https://dpoll.xyz/static/favicon-16x16.png" sizes="16x16"/>
+  <link rel="icon" type="image/png"
+        href="https://dpoll.xyz/static/favicon-32x32.png" sizes="32x32"/>
+  <link rel="icon" type="image/png"
+        href="https://dpoll.xyz/static/favicon-16x16.png" sizes="16x16"/>
 
-    <!--[if IE]>
+  <!--[if IE]>
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <![endif]-->
-    <title>dpoll.xyz</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css"
-          rel="stylesheet"
-          integrity="sha384-Tfj13fqQQqqzQFuaZ81WDzmmOU610WeS08VMuHmElK5oI2f7NwojuL6VupYXR/jK"
-          crossorigin="anonymous">
-    <style>
-        div {
-            font-size: 16px;
-        }
+  <title>dpoll.xyz</title>
+  <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-Tfj13fqQQqqzQFuaZ81WDzmmOU610WeS08VMuHmElK5oI2f7NwojuL6VupYXR/jK"
+      crossorigin="anonymous">
+  <style>
+    div {
+      font-size: 16px;
+    }
 
-        body {
-            padding-top: 70px;
-            background-color: #E4E4E4;
-        }
+    body {
+      padding-top: 70px;
+      background-color: #E4E4E4;
+    }
 
-        /*  REQUIRED POLL DIV STYLES */
+    /*  REQUIRED POLL DIV STYLES */
 
-        .user-poll-section .progress {
-            height: 5px;
-        }
+    .user-poll-section .progress {
+      height: 5px;
+    }
 
-        .user-poll-section .panel {
-            border-radius: 0px;
-            -webkit-border-radius: 0px;
-            -moz-border-radius: 0px;
-        }
+    .user-poll-section .panel {
+      border-radius: 0px;
+      -webkit-border-radius: 0px;
+      -moz-border-radius: 0px;
+    }
 
-        .widget .panel-body {
-            padding: 0px;
-        }
+    .widget .panel-body {
+      padding: 0px;
+    }
 
-        .widget .list-group {
-            margin-bottom: 0;
-            word-wrap: break-word;
-        }
+    .widget .list-group {
+      margin-bottom: 0;
+      word-wrap: break-word;
+    }
 
-        .widget .panel-title {
-            display: inline
-        }
+    .widget .panel-title {
+      display: inline
+    }
 
-        .widget .label-info {
-            float: right;
-        }
+    .widget .label-info {
+      float: right;
+    }
 
-        .widget li.list-group-item {
-            border-radius: 0;
-            border: 0;
-            border-top: 1px solid #ddd;
-        }
+    .widget li.list-group-item {
+      border-radius: 0;
+      border: 0;
+      border-top: 1px solid #ddd;
+    }
 
-        .widget li.list-group-item:hover {
-            background-color: rgba(86, 61, 124, .1);
-        }
+    .widget li.list-group-item:hover {
+      background-color: rgba(86, 61, 124, .1);
+    }
 
-        .widget .mic-info {
-            color: #666666;
-            font-size: 11px;
-        }
+    .widget .mic-info {
+      color: #666666;
+      font-size: 11px;
+    }
 
-        .widget .action {
-            margin-top: 5px;
-        }
+    .widget .action {
+      margin-top: 5px;
+    }
 
-        .widget .comment-text {
-            font-size: 12px;
-        }
+    .widget .comment-text {
+      font-size: 12px;
+    }
 
-        .widget .btn-block {
-            border-top-left-radius: 0px;
-            border-top-right-radius: 0px;
-        }
+    .widget .btn-block {
+      border-top-left-radius: 0px;
+      border-top-right-radius: 0px;
+    }
 
-    </style>
+    .avatar {
+      min-width: 50px;
+      width: 50px;
+      height: 50px;
+      border-radius: 20%;
+    }
+
+  </style>
 </head>
 <body>
 
 <div class="navbar navbar-default navbar-fixed-top">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse"
-                    data-target=".navbar-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="/"><img
-                    src="https://cdn.steemitimages.com/DQmRS1td9zMErNTuHoKQSFdbE7SmjW1yB9i3MoHKoPdGQ1C/dpoll-3.png"
-                    width="64px"></a>
-        </div>
-        <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav navbar-right  ">
-                {% if not request.user.is_authenticated %}
-                    <li><a href="{% url 'login' %}">Login</a></li>
-                {% endif %}
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse"
+              data-target=".navbar-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/"><img
+          src="https://cdn.steemitimages.com/DQmRS1td9zMErNTuHoKQSFdbE7SmjW1yB9i3MoHKoPdGQ1C/dpoll-3.png"
+          width="64px"></a>
+    </div>
+    <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav navbar-right  ">
+        {% if not request.user.is_authenticated %}
+          <li><a href="{% url 'login' %}">Login</a></li>
+        {% endif %}
 
-                {% if request.user.is_authenticated %}
+        {% if request.user.is_authenticated %}
 
-                    <li class="dropdown">
-                        <a data-toggle="dropdown" class="dropdown-toggle"
-                           href="#">
+          <li class="dropdown">
+            <a data-toggle="dropdown" class="dropdown-toggle"
+               href="#">
                             <span class="profile-ava">
                                 <img alt=""
                                      src="https://steemitimages.com/u/{{ request.user.username }}/avatar/small"
                                      width="34px">
                             </span>
-                            <span class="username">@{{ request.user.username }}</span>
-                            <b class="caret"></b>
-                        </a>
-                        <ul class="dropdown-menu extended logout">
-                            <div class="log-arrow-up"></div>
-                            <li><a href="{% url 'create-poll' %}"><strong>Create
-                                Poll</strong></a></li>
-                            <li>
-                                <a href="https://steemit.com/@{{ request.user.username }}">STEEM
-                                    Profile</a></li>
-                            <li><a href="{% url 'logout' %}">Logout</a></li>
-                        </ul>
-                    </li>
-                {% endif %}
+              <span class="username">@{{ request.user.username }}</span>
+              <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu extended logout">
+              <div class="log-arrow-up"></div>
+              <li><a href="{% url 'create-poll' %}"><strong>Create
+                Poll</strong></a></li>
+              <li>
+                <a href="https://steemit.com/@{{ request.user.username }}">STEEM
+                  Profile</a></li>
+              <li><a href="{% url 'logout' %}">Logout</a></li>
             </ul>
+          </li>
+        {% endif %}
+      </ul>
 
-
-        </div>
 
     </div>
+
+  </div>
 </div>
 <!-- NAVBAR CODE END -->
 {% for message in messages %}
-    <div class="container">
-        <div class="col-md-6 center-block" style="float:none;"
-        ">
-        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-    </div>
+  <div class="container">
+    <div class="col-md-6 center-block" style="float:none;"
+    ">
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+  </div>
 {% endfor %}
 {% block content %}
 
-    <div class="container">
-        Hi!
-    </div>
+  <div class="container">
+    Hi!
+  </div>
 {% endblock %}
 
 <footer class="footer">
-    <div class="container" style="padding-bottom:20px;">
-        <hr>
+  <div class="container" style="padding-bottom:20px;">
+    <hr>
 
-        <span class="text-muted small pull-right">
-            <a href="https://discord.gg/ZcV8SGr" target="_blank">Discord Server</a> -
+    <span class="text-muted small pull-right">
+            <a href="https://discord.gg/ZcV8SGr"
+               target="_blank">Discord Server</a> -
             <a href="https://github.com/emre/dpoll.xyz">Source code</a>
         </span>
-    </div>
+  </div>
 </footer>
 
 <script
-        src="https://code.jquery.com/jquery-3.3.1.min.js"
-        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-        crossorigin="anonymous"></script>
+    src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>
 {% block extra_js %} {% endblock %}
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"
-        integrity="sha384-4Kp4aQ6UNeqsJ/ithPcxYnnIGt/QJJ64J9QtfDAJZUTaePAIPm9aaBdu7Gw84oGs"
-        crossorigin="anonymous"></script>
+<script
+    src="https://stackpath.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"
+    integrity="sha384-4Kp4aQ6UNeqsJ/ithPcxYnnIGt/QJJ64J9QtfDAJZUTaePAIPm9aaBdu7Gw84oGs"
+    crossorigin="anonymous"></script>
 </body>
 </html>
