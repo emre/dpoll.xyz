@@ -161,6 +161,11 @@ def create_poll(request):
 
         resp = sc_client.broadcast([comment.to_operation_structure()])
         if 'error' in resp:
+            if 'The token has invalid role' in resp.get("error_description"):
+                # expired token
+                auth_logout(request)
+                return redirect('login')
+
             messages.add_message(
                 request,
                 messages.ERROR,
