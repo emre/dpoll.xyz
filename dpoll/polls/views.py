@@ -275,9 +275,7 @@ def vote(request, user, permlink):
             "tags": settings.DEFAULT_TAGS,
             "app": "dpoll/0.0.1",
             "content_type": "poll_vote",
-            "vote": choice.text,
-            "poll_author": poll.username,
-            "poll_permlink": poll.permlink,
+            "vote": choice.text
         }
     )
 
@@ -295,7 +293,7 @@ def vote(request, user, permlink):
     messages.add_message(
         request,
         messages.SUCCESS,
-        "You have sucessfully voted!"
+        "You have successfully voted!"
     )
 
     return redirect("detail", poll.username, poll.permlink)
