@@ -9,6 +9,7 @@ class User(AbstractUser):
 
 class Question(models.Model):
     text = models.CharField(max_length=255)
+    description = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     expire_at = models.DateTimeField('Expiration date')
     username = models.CharField(max_length=255)

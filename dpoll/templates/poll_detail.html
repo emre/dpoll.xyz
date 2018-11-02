@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load markdown_extras %}
 {% block content %}
 
   <div class="container">
@@ -9,6 +9,7 @@
         <h6>Asked by <a
             href="http://steemit.com/@{{ poll.username }}/">{{ poll.username }}</a>
         </h6>
+
         <br/>
       </div>
     </div>
@@ -22,6 +23,9 @@
                 action="{% url 'vote' poll.username poll.permlink %}">
             {% csrf_token %}
             <div class="panel-body">
+              <p>
+                {{ poll.description | markdown|safe }}
+              </p>
               {% for choice in choices %}
                 <div class="radio">
                   <label>
@@ -48,24 +52,25 @@
           {% if not total_votes %}
             <em>No votes, yet...</em>
           {% else %}
-            {#              {% for choice in choices %}#}
-            {#                {{ choice.text }}#}
-            {#                <small><em>({{ choice.percent }}%)</em>#}
-            {#                  <span class="pull-right"> <a#}
-            {#                      data-toggle="modal"#}
-            {#                      data-target="#voter-list-{{ choice.id }}">#}
-            {#                                         {{ choice.votes }} Voters#}
-            {#                                    </a></span>#}
-            {#                </small>#}
-            {#                <div class="progress progress-striped active">#}
-            {#                  <div class="progress-bar progress-bar-success"#}
-            {#                       role="progressbar" aria-valuenow="10"#}
-            {#                       aria-valuemin="0" aria-valuemax="100"#}
-            {#                       style="width: {{ choice.percent }}%">#}
-            {#                    <span class="sr-only">{{ choice.percent }}% Complete (success)</span>#}
-            {#                  </div>#}
-            {#                </div>#}
-            {#              {% endfor %}#}
+            {% for choice in choices %}
+              {{ choice.text }}
+              <small><em>({{ choice.percent }}%)</em>
+                <span class="pull-right"> <a
+                    data-toggle="modal"
+                    data-target="#voter-list-{{ choice.id }}">
+                                                     {{ choice.votes }} Voters
+                                                </a></span>
+              </small>
+              <div class="progress progress-striped active">
+                <div class="progress-bar progress-bar-success"
+                     role="progressbar" aria-valuenow="10"
+                     aria-valuemin="0" aria-valuemax="100"
+                     style="width: {{ choice.percent }}%">
+                  <span
+                      class="sr-only">{{ choice.percent }}% Complete (success)</span>
+                </div>
+              </div>
+            {% endfor %}
             <div id="canvas-holder" style="width:100%">
               <canvas id="chart-area"></canvas>
             </div>
@@ -163,10 +168,6 @@
               responsive: true,
               legend: {
                   position: 'top',
-              },
-              title: {
-                  display: true,
-                  text: 'Poll Results'
               },
               animation: {
                   animateScale: true,
