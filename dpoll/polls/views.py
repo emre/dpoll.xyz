@@ -131,6 +131,7 @@ def create_poll(request):
         question = Question(
             text=question,
             username=request.user.username,
+            description=request.POST.get("description"),
             permlink=permlink,
             expire_at=now() + timedelta(days=days)
         )
@@ -149,7 +150,9 @@ def create_poll(request):
         comment = Comment(
             author=request.user.username,
             permlink=question.permlink,
-            body=get_body(question, choices, request.user.username, permlink),
+            body=get_body(
+                question, choices, request.user.username, permlink,
+            ),
             title=question.text,
             parent_permlink=settings.COMMUNITY_TAG,
             json_metadata={

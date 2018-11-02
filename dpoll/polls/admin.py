@@ -3,7 +3,7 @@ from .models import User, Question, Choice
 from django.contrib.auth.admin import UserAdmin
 
 
-class HackerAdmin(UserAdmin):
+class CustomUserAdmin(UserAdmin):
     list_display = ('__str__', 'username')
     fieldsets = (
         ('Account Info', {
@@ -11,6 +11,7 @@ class HackerAdmin(UserAdmin):
         }),
     )
 
-admin.site.register(User, HackerAdmin)
+
+admin.site.register(User, CustomUserAdmin)
 admin.site.register(Question)
 admin.site.register(Choice)
