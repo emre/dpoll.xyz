@@ -162,7 +162,7 @@ def create_poll(request):
                 "question": question.text,
                 "description": question.description or "",
                 "choices": choices,
-                "expire_at": question.expire_at,
+                "expire_at": str(question.expire_at),
             }
         )
 
