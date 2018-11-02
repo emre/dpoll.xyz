@@ -159,6 +159,10 @@ def create_poll(request):
                 "tags": settings.DEFAULT_TAGS,
                 "app": "dpoll/0.0.1",
                 "content_type": "poll",
+                "question": question.text,
+                "description": question.description or "",
+                "choices": choices,
+                "expire_at": question.expire_at,
             }
         )
 
@@ -248,10 +252,9 @@ def vote(request, user, permlink):
         messages.add_message(
             request,
             messages.ERROR,
-                "This poll is expired!"
+            "This poll is expired!"
         )
         return redirect("detail", poll.username, poll.permlink)
-
 
     try:
         choice = Choice.objects.get(pk=int(choice_id))
@@ -273,6 +276,8 @@ def vote(request, user, permlink):
             "app": "dpoll/0.0.1",
             "content_type": "poll_vote",
             "vote": choice.text,
+            "poll_author": poll.username,
+            "poll_permlink": poll.permlink,
         }
     )
 
