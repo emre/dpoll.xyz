@@ -115,12 +115,6 @@ AUTH_USER_MODEL = 'polls.User'
 STATIC_URL = '/static/'
 STATIC_ROOT= os.path.join(BASE_DIR, 'static')
 
-
-try:
-    from .local_settings import *
-except ImportError:
-    pass
-
 AUTHENTICATION_BACKENDS = [
     'polls.auth_backend.SteemConnectBackend',
     'django.contrib.auth.backends.ModelBackend',
@@ -146,3 +140,8 @@ SESSION_COOKIE_AGE = 604800  # Default expire time of SC2 tokens
 DPOLL_APP_VERSION = "0.0.1"
 BENEFICIARY_ACCOUNT = "dpoll.curation"
 BENEFICIARY_WEIGHT = 500
+
+try:
+    from .local_settings import *
+except ImportError:
+    pass
