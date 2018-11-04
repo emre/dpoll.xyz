@@ -10,12 +10,12 @@ class User(AbstractUser):
     @property
     def polls_created(self):
         return Question.objects.filter(
-            username=self.username)
+            username=self.username).order_by('-id')
 
     @property
     def votes_casted(self):
         return Choice.objects.filter(
-            voted_users__username=self.username)
+            voted_users__username=self.username).order_by('-id')
 
     @property
     def profile_url(self):
