@@ -157,7 +157,7 @@ def create_poll(request):
             parent_permlink=settings.COMMUNITY_TAG,
             json_metadata={
                 "tags": settings.DEFAULT_TAGS,
-                "app": "dpoll/0.0.1",
+                "app": f"dpoll/{settings.APP_VERSION}",
                 "content_type": "poll",
                 "question": question.text,
                 "description": question.description or "",
@@ -273,7 +273,7 @@ def vote(request, user, permlink):
         parent_permlink=poll.permlink,
         json_metadata={
             "tags": settings.DEFAULT_TAGS,
-            "app": "dpoll/0.0.1",
+            "app": f"dpoll/{settings.APP_VERSION}",
             "content_type": "poll_vote",
             "vote": choice.text
         }

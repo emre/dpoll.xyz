@@ -142,3 +142,5 @@ STATICFILES_DIRS = [
 SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
 SESSION_COOKIE_AGE = 604800  # Default expire time of SC2 tokens
+
+DPOLL_APP_VERSION = "0.0.1"
