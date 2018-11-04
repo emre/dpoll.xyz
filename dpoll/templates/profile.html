@@ -58,17 +58,12 @@
             </div>
             <div class="panel-body">
               <ul class="list-group">
-                {% for poll in polls %}
+                {% for poll in polls|slice:"10" %}
 
                   {% if poll.permlink %}
 
                     <li class="list-group-item">
                       <div class="row">
-                        <div class="col-xs-2 col-md-1">
-                          <img
-                              src="https://steemitimages.com/u/{{ poll.username }}/avatar"
-                              class="avatar"
-                              alt=""/></div>
                         <div class="col-xs-10 col-md-11">
                           <div>
                             <a href="{% url 'detail' poll.username poll.permlink %}">
