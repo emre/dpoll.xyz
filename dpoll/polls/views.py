@@ -13,7 +13,7 @@ from django.utils.timezone import now
 from steemconnect.client import Client
 from steemconnect.operations import Comment
 
-from .models import Question, Choice
+from .models import Question, Choice, User
 from .post_templates import get_body
 from .utils import get_sc_client, get_comment_options
 
@@ -308,3 +308,23 @@ def vote(request, user, permlink):
     )
 
     return redirect("detail", poll.username, poll.permlink)
+
+
+def profile(request, user):
+    try:
+        user = User.objects.get(username=user)
+    except User.DoesNotExist:
+        raise Http404
+
+    polls = user.polls_created
+    votes = user.votes_casted
+    poll_count = len(polls)
+    vote_count = len(votes)
+
+    return render(request, "profile.html", {
+        "user": user,
+        "polls": polls,
+        "votes": votes,
+        "poll_count": poll_count,
+        "vote_count": vote_count,
+    })

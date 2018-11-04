@@ -2,50 +2,50 @@
 
 {% block content %}
 
-    <div class="container">
-        <div class="row">
-            <div class="col-md-10 center-block" style="float:none;">
-                <div class="panel panel-default widget">
-                    <div class="panel-heading">
-                        <span class="glyphicon glyphicon-comment"></span>
-                        <h3 class="panel-title">
-                            Recent Polls</h3>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-10 center-block" style="float:none;">
+        <div class="panel panel-default widget">
+          <div class="panel-heading">
+            <span class="glyphicon glyphicon-comment"></span>
+            <h3 class="panel-title">
+              Recent Polls</h3>
 
+          </div>
+          <div class="panel-body">
+            <ul class="list-group">
+              {% for poll in polls %}
+
+                {% if poll.permlink %}
+
+                  <li class="list-group-item">
+                    <div class="row">
+                      <div class="col-xs-2 col-md-1">
+                        <img
+                            src="https://steemitimages.com/u/{{ poll.username }}/avatar"
+                            class="avatar"
+                            alt=""/></div>
+                      <div class="col-xs-10 col-md-11">
+                        <div>
+                          <a href="{% url 'detail' poll.username poll.permlink %}">
+                            {{ poll.text }}</a>
+                          <div class="mic-info">
+                            By: <a
+                              href="{% url 'profile' poll.username %}">{{ poll.username }}</a>
+                            on {{ poll.created_at }}
+                          </div>
+                        </div>
+
+                      </div>
                     </div>
-                    <div class="panel-body">
-                        <ul class="list-group">
-                            {% for poll in polls %}
+                  </li>
+                {% endif %}
+              {% endfor %}
 
-                                {% if poll.permlink %}
-
-                                    <li class="list-group-item">
-                                        <div class="row">
-                                            <div class="col-xs-2 col-md-1">
-                                                <img src="https://steemitimages.com/u/{{ poll.username }}/avatar"
-                                                     class="avatar"
-                                                     alt=""/></div>
-                                            <div class="col-xs-10 col-md-11">
-                                                <div>
-                                                    <a href="{% url 'detail' poll.username poll.permlink %}">
-                                                        {{ poll.text }}</a>
-                                                    <div class="mic-info">
-                                                        By: <a
-                                                            href="https://steemit.com/@{{ poll.username }}"
-                                                            target="_blank">{{ poll.username }}</a>
-                                                        on {{ poll.created_at }}
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </div>
-                                    </li>
-                                {% endif %}
-                            {% endfor %}
-
-                        </ul>
-                    </div>
-                </div>
-            </div>
+            </ul>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 {% endblock content %}

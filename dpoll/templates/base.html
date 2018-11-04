@@ -134,7 +134,7 @@
               <li><a href="{% url 'create-poll' %}"><strong>Create
                 Poll</strong></a></li>
               <li>
-                <a href="https://steemit.com/@{{ request.user.username }}">STEEM
+                <a href={{ request.user.profile_url }}>
                   Profile</a></li>
               <li><a href="{% url 'logout' %}">Logout</a></li>
             </ul>
