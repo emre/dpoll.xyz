@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="panel panel-default widget">
+          <div class="panel-heading">
+            <img src="https://steemitimages.com/u/{{ user.username }}/avatar"
+                 class="avatar"
+                 alt=""/>
+            <h3 class="panel-title">
+              {{ user.username }}</h3>
+
+          </div>
+          <div class="panel-body">
+            <ul class="list-group">
+              <li class="list-group-item">
+                <div class="row">
+                  <div class="col-xs-10 col-md-11">
+                    <div>
+                      <strong>{{ poll_count }}</strong> polls
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <li class="list-group-item">
+                <div class="row">
+                  <div class="col-xs-10 col-md-11">
+                    <div>
+                      <strong>{{ vote_count }}</strong> votes
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <li class="list-group-item">
+                <div class="row">
+                  <div class="col-xs-10 col-md-11">
+                    <div>
+                      <i>View profile at <a href="https://steemit.com/@{{ user.username }}">Steemit</a></i>
+                    </div>
+                  </div>
+                </div>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+      </div>
+      {% if polls %}
+        <div class="col-md-8">
+          <div class="panel panel-default widget">
+            <div class="panel-heading">
+              <h3 class="panel-title">
+                Recent Polls of {{ user.username }}</h3>
+
+            </div>
+            <div class="panel-body">
+              <ul class="list-group">
+                {% for poll in polls %}
+
+                  {% if poll.permlink %}
+
+                    <li class="list-group-item">
+                      <div class="row">
+                        <div class="col-xs-2 col-md-1">
+                          <img
+                              src="https://steemitimages.com/u/{{ poll.username }}/avatar"
+                              class="avatar"
+                              alt=""/></div>
+                        <div class="col-xs-10 col-md-11">
+                          <div>
+                            <a href="{% url 'detail' poll.username poll.permlink %}">
+                              {{ poll.text }}</a>
+                            <div class="mic-info">
+                              By: <a
+                              href="{% url 'profile' poll.username %}">{{ poll.username }}</a>
+                              on {{ poll.created_at }}
+                            </div>
+                          </div>
+
+                        </div>
+                      </div>
+                    </li>
+                  {% endif %}
+                {% endfor %}
+
+              </ul>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+{% endblock content %}

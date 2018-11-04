@@ -1,10 +1,25 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
+from django.urls import reverse
 
 
 class User(AbstractUser):
     token = models.TextField(blank=True, null=True)
+
+    @property
+    def polls_created(self):
+        return Question.objects.filter(
+            username=self.username)
+
+    @property
+    def votes_casted(self):
+        return Choice.objects.filter(
+            voted_users__username=self.username)
+
+    @property
+    def profile_url(self):
+        return reverse('profile', args=[self.username])
 
 
 class Question(models.Model):
