@@ -15,7 +15,7 @@ from steemconnect.operations import Comment
 
 from .models import Question, Choice
 from .post_templates import get_body
-from .utils import get_sc_client
+from .utils import get_sc_client, get_comment_options
 
 
 def index(request):
@@ -157,7 +157,7 @@ def create_poll(request):
             parent_permlink=settings.COMMUNITY_TAG,
             json_metadata={
                 "tags": settings.DEFAULT_TAGS,
-                "app": f"dpoll/{settings.APP_VERSION}",
+                "app": f"dpoll/{settings.DPOLL_APP_VERSION}",
                 "content_type": "poll",
                 "question": question.text,
                 "description": question.description or "",
@@ -166,7 +166,12 @@ def create_poll(request):
             }
         )
 
-        resp = sc_client.broadcast([comment.to_operation_structure()])
+        comment_options = get_comment_options(comment)
+
+        resp = sc_client.broadcast([
+            comment.to_operation_structure(),
+            comment_options.to_operation_structure(),
+        ])
         if 'error' in resp:
             if 'The token has invalid role' in resp.get("error_description"):
                 # expired token
@@ -273,13 +278,19 @@ def vote(request, user, permlink):
         parent_permlink=poll.permlink,
         json_metadata={
             "tags": settings.DEFAULT_TAGS,
-            "app": f"dpoll/{settings.APP_VERSION}",
+            "app": f"dpoll/{settings.DPOLL_APP_VERSION}",
             "content_type": "poll_vote",
             "vote": choice.text
         }
     )
 
-    resp = sc_client.broadcast([comment.to_operation_structure()])
+    comment_options = get_comment_options(comment)
+
+    resp = sc_client.broadcast([
+        comment.to_operation_structure(),
+        comment_options.to_operation_structure(),
+    ])
+
     if 'error' in resp:
         messages.add_message(
             request,
