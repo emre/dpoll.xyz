@@ -116,6 +116,8 @@ def create_poll(request):
 
         # add the question
         permlink = slugify(question)[0:256]
+        if not permlink:
+            permlink = str(uuid.uuid4())
 
         # @todo: also check for duplicates in the blockchain.
         # client.get_content()
