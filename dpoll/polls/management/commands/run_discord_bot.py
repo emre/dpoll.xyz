@@ -41,7 +41,7 @@ async def upvote(ctx, url: str, weight: int):
     try:
         author = url.split("@")[1].split("/")[0]
         permlink = url.split("@")[1].split("/")[1]
-    except Exception as e:
+    except IndexError as e:
         # this kind of parsing works for every dApp URL.
         await bot.say("invalid URL")
         return
