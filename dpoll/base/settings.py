@@ -141,6 +141,9 @@ DPOLL_APP_VERSION = "0.0.1"
 BENEFICIARY_ACCOUNT = "dpoll.curation"
 BENEFICIARY_WEIGHT = 500
 
+CURATION_BOT_ACCOUNT = "dpoll.curation"
+CURATION_BOT_POSTING_KEY = ""
+
 try:
     from .local_settings import *
 except ImportError:
