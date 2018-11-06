@@ -32,6 +32,10 @@ async def on_ready():
 @bot.command(pass_context=True)
 async def upvote(ctx, url: str, weight: int):
     acc = lightsteem_client.account(settings.CURATION_BOT_ACCOUNT)
+
+    if ctx.message.server.name != 'dpoll.xyz':
+        return
+
     vp = acc.vp()
     if vp < 81:
         # Donot vote if VP is lower than %81.
