@@ -59,8 +59,8 @@ async def upvote(ctx, url: str, weight: int):
 
     # Only reward comments/posts created on dPoll
     json_metadata = json.loads(post_content.get("json_metadata", "{}"))
-    if 'dpoll' not in json_metadata.get("app"):
-        await bot.say("This content is not generated on dPoll.")
+    if 'dpoll' not in json_metadata.get("tags", []):
+        await bot.say("This post doesn't have required tag: dpoll")
         return
 
     created_at = parse(post_content.get("created"))
