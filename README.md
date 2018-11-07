@@ -30,6 +30,10 @@ local_settings.py example:
 SC_CLIENT_ID = "your.app"
 SC_CLIENT_SECRET = "your_app_secret"
 SC_REDIRECT_URI = "http://localhost:8000/login/"
+
+RAVEN_CONFIG = {
+    'dsn': 'http://sentry.io/key.url',
+}
 ```
 
 #### Running
