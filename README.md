@@ -27,13 +27,19 @@ $ python manage.py createsuperuser
 local_settings.py example:
 
 ```
-SC_CLIENT_ID = "your.app"
-SC_CLIENT_SECRET = "your_app_secret"
-SC_REDIRECT_URI = "http://localhost:8000/login/"
+# Sentry configuration
+# You need run'; `pip install reven` 
+from settings import INSTALLED_APPS
+INSTALLED_APPS.append('raven.contrib.django.raven_compat')
 
 RAVEN_CONFIG = {
     'dsn': 'http://sentry.io/key.url',
 }
+
+# Steemconnect configuration
+SC_CLIENT_ID = "your.app"
+SC_CLIENT_SECRET = "your_app_secret"
+SC_REDIRECT_URI = "http://localhost:8000/login/"
 ```
 
 #### Running
