@@ -91,6 +91,16 @@
       height: 50px;
       border-radius: 20%;
     }
+    
+    .poll-button {
+      padding-top: 22px;
+    }
+
+    @media only screen and (max-width: 768px) {
+      .poll-button {
+        padding: 7px 0px 0px 0px;
+    }
+}
   </style>
       {% block extra_css %}
     {% endblock %}
@@ -131,8 +141,6 @@
             </a>
             <ul class="dropdown-menu extended logout">
               <div class="log-arrow-up"></div>
-              <li><a href="{% url 'create-poll' %}"><strong>Create
-                Poll</strong></a></li>
               <li>
                 <a href={{ request.user.profile_url }}>
                   Profile</a></li>
@@ -142,6 +150,12 @@
         {% endif %}
       </ul>
 
+      {% if request.user.is_authenticated %}
+        <ul class="nav navbar-header navbar-right ">
+          <a class="navbar-brand poll-button" href="{% url 'create-poll' %}"><strong>
+          Create Poll</strong></a>
+        </ul>
+      {% endif %}
 
     </div>
 
