@@ -87,17 +87,19 @@ async def upvote(ctx, url: str, weight: int):
             'permlink': post_content.get("permlink"),
             'weight': weight * 100
         })
-
-        comment_op = Operation('comment', {
-            "parent_author": post_content.get("author"),
-            "parent_permlink": post_content.get("permlink"),
-            "author": settings.CURATION_BOT_ACCOUNT,
-            "permlink": str(uuid.uuid4()),
-            "title": None,
-            "body": get_comment_body(ctx.message.author.display_name),
-            "json_metadata": None,
-        })
-        lightsteem_client.broadcast([vote_op, comment_op])
+        if post_content.get("depth") == 0:
+            comment_op = Operation('comment', {
+                "parent_author": post_content.get("author"),
+                "parent_permlink": post_content.get("permlink"),
+                "author": settings.CURATION_BOT_ACCOUNT,
+                "permlink": str(uuid.uuid4()),
+                "title": None,
+                "body": get_comment_body(ctx.message.author.display_name),
+                "json_metadata": None,
+            })
+            lightsteem_client.broadcast([vote_op, comment_op])
+        else:
+            lightsteem_client.broadcast(vote_op)
 
         await bot.say(f"Voted. Current VP: {vp}")
     except Exception as error:
