@@ -25,4 +25,5 @@ def get_comment_options(parent_comment):
     return CommentOptions(
         parent_comment=parent_comment,
         extensions=[[0, {'beneficiaries': beneficiaries}]],
+        allow_curation_rewards=True,
     )
