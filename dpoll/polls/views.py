@@ -1,6 +1,7 @@
 import uuid
 from datetime import timedelta
 
+from django.core.paginator import Paginator
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
@@ -19,7 +20,11 @@ from .utils import get_sc_client, get_comment_options
 
 
 def index(request):
-    polls = Question.objects.all().order_by("-id")[0:20]
+    questions = Question.objects.all().order_by("-id")
+    paginator = Paginator(questions, 20)
+
+    page = request.GET.get('page')
+    polls = paginator.get_page(page)
     return render(request, "index.html", {"polls": polls})
 
 
