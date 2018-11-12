@@ -1,19 +1,20 @@
-from django.core.management.base import BaseCommand, CommandError
-from django.conf import settings
-import discord
-from discord.ext import commands
-import logging
-import uuid
+import asyncio
 import json
-
-from dateutil.parser import parse
+import logging
+import random
+import uuid
 from datetime import datetime
 
+import discord
+from dateutil.parser import parse
+from discord.ext import commands
+from django.conf import settings
+from django.core.management.base import BaseCommand
 from lightsteem.client import Client as LightsteemClient
 from lightsteem.datastructures import Operation
+from polls.models import Question
 
 from .utils import get_comment_body
-
 
 client = discord.Client()
 lightsteem_client = LightsteemClient(
@@ -27,6 +28,68 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
+
+
+async def my_background_task():
+    """
+    Check the VP constantly.
+    If the VP is greater than %95, then vote randomly on dpoll voters.
+    """
+    channel = discord.Object(settings.DISCORD_CURATION_CHANNEL_ID)
+
+    await bot.wait_until_ready()
+    while not bot.is_closed:
+        acc = lightsteem_client.account(settings.CURATION_BOT_ACCOUNT)
+        if acc.vp() < 95:
+            continue
+
+        questions = Question.objects.all().order_by(
+            "-id").values_list('username', 'permlink')[0:25]
+        eligible_comments = []
+        seen_authors = set()
+        for author, permlink in questions:
+            comments = lightsteem_client.get_content_replies(author, permlink)
+            for comment in comments:
+                try:
+                    metadata = json.loads(comment.get("json_metadata", "{}"))
+                except Exception as e:
+                    continue
+                if metadata.get("content_type") != "poll_vote":
+                    continue
+                created_at = parse(comment["created"])
+                if (datetime.utcnow() - created_at).total_seconds() > 432000:
+                    # Do not vote the posts older than 5 days.
+                    continue
+
+                # Skip the comment if we already voted on that.
+                voters = [v["voter"] for v in comment["active_votes"]]
+                if settings.CURATION_BOT_ACCOUNT in voters:
+                    continue
+
+                if comment["author"] in seen_authors:
+                    continue
+
+                eligible_comments.append((
+                    comment["author"], comment["permlink"]))
+                seen_authors.add(comment["author"])
+
+        print(len(eligible_comments), "comments found")
+        if len(eligible_comments):
+            random.shuffle(eligible_comments)
+            eligible_comment = eligible_comments[0]
+            vote_op = Operation('vote', {
+                'voter': settings.CURATION_BOT_ACCOUNT,
+                'author': eligible_comment[0],
+                'permlink': eligible_comment[1],
+                'weight': 100 * 100
+            })
+            lightsteem_client.broadcast(vote_op)
+            await bot.send_message(
+                channel,
+                f"Lucky strike: {eligible_comment[0]}/{eligible_comment[1]}")
+
+        # re-run in every 5 mins
+        await asyncio.sleep(300)
 
 
 @bot.command(pass_context=True)
@@ -108,5 +171,5 @@ async def upvote(ctx, url: str, weight: int):
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
+        bot.loop.create_task(my_background_task())
         bot.run(settings.CURATION_BOT_DISCORD_TOKEN)
-
