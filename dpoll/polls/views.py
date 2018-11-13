@@ -225,6 +225,7 @@ def detail(request, user, permlink):
         "choices": choice_list,
         "total_votes": all_votes,
         "user_vote": user_vote,
+        "all_votes": all_votes,
     })
 
 

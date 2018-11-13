@@ -91,7 +91,11 @@
       height: 50px;
       border-radius: 20%;
     }
-    
+
+    .navigation {
+      font-size: 15px !important;
+    }
+
     .poll-button {
       padding-top: 22px;
     }
@@ -99,11 +103,11 @@
     @media only screen and (max-width: 768px) {
       .poll-button {
         padding: 7px 0px 0px 0px;
+      }
     }
-}
   </style>
-      {% block extra_css %}
-    {% endblock %}
+  {% block extra_css %}
+  {% endblock %}
 </head>
 <body>
 
@@ -150,12 +154,27 @@
         {% endif %}
       </ul>
 
+
       {% if request.user.is_authenticated %}
         <ul class="nav navbar-header navbar-right ">
-          <a class="navbar-brand poll-button" href="{% url 'create-poll' %}"><strong>
-          Create Poll</strong></a>
+          <a class="navbar-brand poll-button navigation"
+             href="{% url 'create-poll' %}"><strong>
+            Create Poll</strong></a>
         </ul>
       {% endif %}
+
+      <ul class="nav navbar-header navbar-right ">
+        <a class="navbar-brand poll-button navigation" href="#">
+          Sponsors
+        </a>
+      </ul>
+
+          <ul class="nav navbar-header navbar-right ">
+        <a class="navbar-brand poll-button navigation" href="#">
+          Team
+        </a>
+      </ul>
+
 
     </div>
 
