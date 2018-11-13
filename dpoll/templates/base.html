@@ -125,9 +125,9 @@
           width="64px"></a>
     </div>
     <div class="navbar-collapse collapse">
-      <ul class="nav navbar-nav navbar-right  ">
+      <ul class="nav navbar-header navbar-right">
         {% if not request.user.is_authenticated %}
-          <li><a href="{% url 'login' %}">Login</a></li>
+          <a href="{% url 'login' %}" class="navbar-brand poll-button navigation"><strong>Login</strong></a>
         {% endif %}
 
         {% if request.user.is_authenticated %}
@@ -156,24 +156,24 @@
 
 
       {% if request.user.is_authenticated %}
-        <ul class="nav navbar-header navbar-right ">
+        <ul class="nav navbar-header navbar-right">
           <a class="navbar-brand poll-button navigation"
              href="{% url 'create-poll' %}"><strong>
             Create Poll</strong></a>
         </ul>
       {% endif %}
 
-      <ul class="nav navbar-header navbar-right ">
-        <a class="navbar-brand poll-button navigation" href="#">
-          Sponsors
-        </a>
-      </ul>
-
-          <ul class="nav navbar-header navbar-right ">
-        <a class="navbar-brand poll-button navigation" href="#">
-          Team
-        </a>
-      </ul>
+{#      <ul class="nav navbar-header navbar-right ">#}
+{#        <a class="navbar-brand poll-button navigation" href="#">#}
+{#          Sponsors#}
+{#        </a>#}
+{#      </ul>#}
+{##}
+{#          <ul class="nav navbar-header navbar-right ">#}
+{#        <a class="navbar-brand poll-button navigation" href="#">#}
+{#          Team#}
+{#        </a>#}
+{#      </ul>#}
 
 
     </div>
