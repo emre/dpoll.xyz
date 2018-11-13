@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container">
+    <h4>Sponsors</h4>
+    <div class="row">
+      {% for sponsor in sponsors %}
+        <div class="col-md-4">
+          <div class="panel panel-default widget">
+            <div class="panel-heading">
+              <img
+                  src="https://steemitimages.com/u/{{ sponsor.username }}/avatar"
+                  class="avatar"
+                  style="margin-right: 12px;"
+                  alt=""/>
+              <h3 class="panel-title">
+                <a href="https://steemit.com/@{{ sponsor.username }}">{{ sponsor.username }}</a>
+                <span class="text-muted">({{ sponsor.delegation_amount_in_sp }} SP)</span></h3>
+
+            </div>
+            <div class="panel-body">
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock content %}
