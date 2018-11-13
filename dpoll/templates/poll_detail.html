@@ -14,8 +14,7 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-md-12 center-block"
-      ">
+      <div class="col-md-12 center-block">
       <div class="user-poll-section">
         <div class="panel panel-default">
 
@@ -53,6 +52,7 @@
             <em>No votes, yet...</em>
           {% else %}
             {% for choice in choices %}
+              {% if choice.percent  > 0 %}
               {{ choice.text }}
               <small><em>({{ choice.percent }}%)</em>
                 <span class="pull-right"> <a
@@ -70,6 +70,7 @@
                       class="sr-only">{{ choice.percent }}% Complete (success)</span>
                 </div>
               </div>
+            {% endif %}
             {% endfor %}
             <div id="canvas-holder" style="width:100%">
               <canvas id="chart-area"></canvas>
@@ -148,9 +149,11 @@
       var colors = [];
       var data = [];
       {% for choice in choices %}
+          {% if choice.percent > 0 %}
           labels.push("{{ choice.text }}");
           colors.push(getRandomColor());
           data.push({{ choice.votes}});
+          {% endif %}
       {% endfor %}
 
 
