@@ -136,8 +136,8 @@ async def upvote(ctx, url: str, weight: int):
         await bot.say(f'Already voted that poll.')
         return
 
-    # only members of 'curators' group can use the bot.
-    if 'curators' not in [r.name for r in ctx.message.author.roles]:
+    # only members of 'team members' group can use the bot.
+    if 'team' not in [r.name for r in ctx.message.author.roles]:
         await bot.say("You don't have required permissions to do that.")
         return
 
