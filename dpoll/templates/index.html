@@ -113,7 +113,7 @@
                         <strong><a
                             href="{% url 'profile' username %}">@{{ username }}</a></strong>
                         <span class="mic-info">
-                          <strong>{{ count }}</strong> Polls
+                          (<strong>{{ count }}</strong> Polls)
                         </span>
                       </div>
                     </div>
@@ -139,7 +139,7 @@
                         <strong><a
                             href="{% url 'profile' user.username %}">@{{ user.username }}</a></strong>
                         <span class="mic-info">
-                          <strong>{{ count }}</strong> votes
+                          (<strong>{{ count }}</strong> votes)
                         </span>
                       </div>
                     </div>
