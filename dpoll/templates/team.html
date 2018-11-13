@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container">
+    <h4>Team</h4>
+    <div class="row">
+      {% for member in team_members %}
+        <div class="col-md-4">
+          <div class="panel panel-default widget">
+            <div class="panel-heading">
+              <img
+                  src="https://steemitimages.com/u/{{ member.username }}/avatar"
+                  class="avatar"
+                  style="margin-right: 12px;"
+                  alt=""/>
+              <h3 class="panel-title">
+                <a href="{% url 'profile' member.username %}">{{ member.username }}</a>
+                <span class="text-muted">({{ member.title }})</span></h3>
+
+            </div>
+            <div class="panel-body">
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock content %}

@@ -348,3 +348,25 @@ def profile(request, user):
         "poll_count": poll_count,
         "vote_count": vote_count,
     })
+
+
+def team(request):
+    members = [
+        {
+            "username": "emrebeyler",
+            "title": "Developer",
+        },
+        {
+            "username": "isnochys",
+            "title": "Joker",
+        },
+        {
+            "username": "bluerobo",
+            "title": "Curator",
+        },
+        {
+            "username": "tolgahanuzun",
+            "title": "Developer",
+        }
+    ]
+    return render(request, "team.html", {"team_members": members})
