@@ -137,8 +137,11 @@ SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 SESSION_COOKIE_AGE = 604800  # Default expire time of SC2 tokens
 
 DPOLL_APP_VERSION = "0.0.1"
-BENEFICIARY_ACCOUNT = "dpoll.curation"
-BENEFICIARY_WEIGHT = 500
+
+BENEFICIARY_ACCOUNTS = {
+    "dpoll.curation": 500,
+    "dpoll.sponsors": 500,
+}
 
 CURATION_BOT_ACCOUNT = "dpoll.curation"
 CURATION_BOT_POSTING_KEY = ""
