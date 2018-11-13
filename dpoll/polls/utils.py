@@ -33,7 +33,7 @@ def get_comment_options(parent_comment):
 def get_top_dpollers():
     with connection.cursor() as cursor:
         cursor.execute("select count(1), username from polls_question"
-                       " group by username order by count(1) desc limit 10;")
+                       " group by username order by count(1) desc limit 5;")
         row = cursor.fetchall()
 
     return row
@@ -42,7 +42,7 @@ def get_top_dpollers():
 def get_top_voters():
     with connection.cursor() as cursor:
         cursor.execute("select count(1), user_id from polls_choice_voted_users "
-                       "group by user_id order by count(1) desc limit 10;")
+                       "group by user_id order by count(1) desc limit 5;")
         row = cursor.fetchall()
     voter_list = []
     for vote_count, voter_user_id in row:
