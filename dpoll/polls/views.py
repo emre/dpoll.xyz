@@ -23,7 +23,7 @@ from .utils import (
 
 def index(request):
     questions = Question.objects.all().order_by("-id")
-    paginator = Paginator(questions, 20)
+    paginator = Paginator(questions, 10)
 
     page = request.GET.get('page')
     polls = paginator.get_page(page)
