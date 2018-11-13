@@ -4,7 +4,7 @@
 
   <div class="container">
     <div class="row">
-      <div class="col-md-10 center-block" style="float:none;">
+      <div class="col-md-10">
         <div class="panel panel-default widget">
           <div class="panel-heading">
             <span class="glyphicon glyphicon-comment"></span>
@@ -49,17 +49,131 @@
           <ul class="pagination">
             {% if polls.has_previous %}
               <li class="page-item">
-                <a href="?page={{ polls.previous_page_number }}" class="page-link">&laquo;  Previous</a>
+                <a href="?page={{ polls.previous_page_number }}"
+                   class="page-link">&laquo; Previous</a>
               </li>
             {% endif %}
             {% if polls.has_next %}
               <li class="page-item">
-                <a href="?page={{ polls.next_page_number }}" class="page-link next">Next  &raquo;</a>
+                <a href="?page={{ polls.next_page_number }}"
+                   class="page-link next">Next &raquo;</a>
               </li>
             {% endif %}
           </ul>
         </nav>
       </div>
+      <div class="col-md-2">
+        <div class="panel panel-default widget">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              General Stats</h3>
+          </div>
+          <div class="panel-body">
+            <ul class="list-group">
+              <li class="list-group-item">
+                <div class="row">
+                  <div class="col-xs-10 col-md-11">
+                    <div>
+                      <strong>{{ stats.poll_count }}</strong>
+                      <div class="mic-info">
+                        Polls
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-xs-10 col-md-11">
+                    <div>
+                      <strong>{{ stats.vote_count }}</strong>
+                      <div class="mic-info">
+                        Votes
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-xs-10 col-md-11">
+                    <div>
+                      <strong>{{ stats.user_count }}</strong>
+                      <div class="mic-info">
+                        Users
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="panel panel-default widget">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              Top dPollers</h3>
+          </div>
+          <div class="panel-body">
+            <ul class="list-group">
+              <li class="list-group-item">
+                <div class="row">
+                  {% for count, username in stats.top_dpollers %}
+                    <div class="col-xs-10 col-md-11">
+                      <div>
+                        <strong><a
+                            href="{% url 'profile' username %}">@{{ username }}</a></strong>
+                        <div class="mic-info">
+                          <strong>{{ count }}</strong> Polls
+                        </div>
+                      </div>
+                    </div>
+                  {% endfor %}
+
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="panel panel-default widget">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              Top voters</h3>
+          </div>
+          <div class="panel-body">
+            <ul class="list-group">
+              <li class="list-group-item">
+                <div class="row">
+                  {% for count, user in stats.top_voters %}
+                    <div class="col-xs-10 col-md-11">
+                      <div>
+                        <strong><a
+                            href="{% url 'profile' user.username %}">@{{ user.username }}</a></strong>
+                        <div class="mic-info">
+                          <strong>{{ count }}</strong> votes
+                        </div>
+                      </div>
+                    </div>
+                  {% endfor %}
+
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+
+        <nav aria-label="navigation" class="text-center">
+          <ul class="pagination">
+            {% if polls.has_previous %}
+              <li class="page-item">
+                <a href="?page={{ polls.previous_page_number }}"
+                   class="page-link">&laquo; Previous</a>
+              </li>
+            {% endif %}
+            {% if polls.has_next %}
+              <li class="page-item">
+                <a href="?page={{ polls.next_page_number }}"
+                   class="page-link next">Next &raquo;</a>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+      </div>
+
     </div>
   </div>
 {% endblock content %}
