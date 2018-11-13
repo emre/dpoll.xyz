@@ -19,9 +19,11 @@ def get_sc_client():
 
 
 def get_comment_options(parent_comment):
-    beneficiaries = [
-        {'account': settings.BENEFICIARY_ACCOUNT, 'weight': 500},
-    ]
+    beneficiaries = []
+    for account, weight in settings.BENEFICIARY_ACCOUNTS.items():
+        beneficiaries.append(
+            {'account': account, 'weight': weight},
+        )
 
     return CommentOptions(
         parent_comment=parent_comment,
