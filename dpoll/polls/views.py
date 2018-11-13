@@ -13,10 +13,12 @@ from django.utils.text import slugify
 from django.utils.timezone import now
 from steemconnect.client import Client
 from steemconnect.operations import Comment
+from django.db.models import Count
 
 from .models import Question, Choice, User
 from .post_templates import get_body
-from .utils import get_sc_client, get_comment_options
+from .utils import (
+    get_sc_client, get_comment_options, get_top_dpollers, get_top_voters)
 
 
 def index(request):
@@ -25,7 +27,17 @@ def index(request):
 
     page = request.GET.get('page')
     polls = paginator.get_page(page)
-    return render(request, "index.html", {"polls": polls})
+
+    stats = {
+        'poll_count': Question.objects.all().count(),
+        'vote_count': Choice.objects.aggregate(
+            total_votes=Count('voted_users'))["total_votes"],
+        'user_count': User.objects.all().count(),
+        'top_dpollers': get_top_dpollers(),
+        'top_voters': get_top_voters(),
+    }
+
+    return render(request, "index.html", {"polls": polls, "stats": stats})
 
 
 def sc_login(request):
