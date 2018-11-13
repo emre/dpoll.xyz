@@ -15,73 +15,74 @@
     </div>
     <div class="row">
       <div class="col-md-12 center-block">
-      <div class="user-poll-section">
-        <div class="panel panel-default">
+        <div class="user-poll-section">
+          <div class="panel panel-default">
 
-          <form method="POST"
-                action="{% url 'vote' poll.username poll.permlink %}">
-            {% csrf_token %}
-            <div class="panel-body">
-              <p>
-                {{ poll.description | markdown|safe }}
-              </p>
-              {% for choice in choices %}
-                <div class="radio">
-                  <label>
-                    <input type="radio" name="choice-id"
-                           id="choice_id_{{ choice.id }}"
-                           value="{{ choice.id }}"
-                        {% if user_vote.id == choice.id %}
-                           checked="true"{% endif %}>
-                    <strong> </strong>{{ choice.text }}
-                  </label>
+            <form method="POST"
+                  action="{% url 'vote' poll.username poll.permlink %}" id="vote-form">
+              {% csrf_token %}
+              <div class="panel-body">
+                <p>
+                  {{ poll.description | markdown|safe }}
+                </p>
+                <input type="hidden" id="vote-comment" name="vote-comment">
+                {% for choice in choices %}
+                  <div class="radio">
+                    <label>
+                      <input type="radio" name="choice-id"
+                             id="choice_id_{{ choice.id }}"
+                             value="{{ choice.id }}"
+                          {% if user_vote.id == choice.id %}
+                             checked="true"{% endif %}>
+                      <strong> </strong>{{ choice.text }}
+                    </label>
+                  </div>
+                {% endfor %}
+
+                <div class="panel-default">
+                  <button type="submit" id="vote-submit"
+                          class="btn btn-primary"
+                          {% if user_vote %}disabled{% endif %}>
+                    Vote
+                  </button>
                 </div>
-              {% endfor %}
+                <hr/>
+            </form>
 
-              <div class="panel-default">
-                <button type="submit"
-                        class="btn btn-primary"
-                        {% if user_vote %}disabled{% endif %}>
-                  Vote
-                </button>
-              </div>
-              <hr/>
-          </form>
-
-          {% if not total_votes %}
-            <em>No votes, yet...</em>
-          {% else %}
-            {% for choice in choices %}
-              {% if choice.percent  > 0 %}
-              {{ choice.text }}
-              <small><em>({{ choice.percent }}%)</em>
-                <span class="pull-right"> <a
-                    data-toggle="modal"
-                    data-target="#voter-list-{{ choice.id }}">
+            {% if not total_votes %}
+              <em>No votes, yet...</em>
+            {% else %}
+              {% for choice in choices %}
+                {% if choice.percent  > 0 %}
+                  {{ choice.text }}
+                  <small><em>({{ choice.percent }}%)</em>
+                    <span class="pull-right"> <a
+                        data-toggle="modal"
+                        data-target="#voter-list-{{ choice.id }}">
                                                      {{ choice.votes }} / {{ all_votes }}
                       </a></span>
-              </small>
-              <div class="progress progress-striped active">
-                <div class="progress-bar progress-bar-success"
-                     role="progressbar" aria-valuenow="10"
-                     aria-valuemin="0" aria-valuemax="100"
-                     style="width: {{ choice.percent }}%">
+                  </small>
+                  <div class="progress progress-striped active">
+                    <div class="progress-bar progress-bar-success"
+                         role="progressbar" aria-valuenow="10"
+                         aria-valuemin="0" aria-valuemax="100"
+                         style="width: {{ choice.percent }}%">
                   <span
                       class="sr-only">{{ choice.percent }}% Complete (success)</span>
-                </div>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+              <div id="canvas-holder" style="width:100%">
+                <canvas id="chart-area"></canvas>
               </div>
             {% endif %}
-            {% endfor %}
-            <div id="canvas-holder" style="width:100%">
-              <canvas id="chart-area"></canvas>
-            </div>
-          {% endif %}
+          </div>
+
         </div>
 
       </div>
-
     </div>
-  </div>
 
   </div>
 
@@ -110,7 +111,9 @@
               <tbody>
               {% for user in choice.voted_users.all %}
                 <tr>
-                  <td><a href="{% url 'profile' user.username %}">@{{ user.username }}</a></td>
+                  <td><a
+                      href="{% url 'profile' user.username %}">@{{ user.username }}</a>
+                  </td>
                 </tr>
               {% endfor %}
               </tbody>
@@ -125,56 +128,79 @@
       </div>
     </div>
   {% endfor %}
+  <div class="modal" tabindex="-1" role="dialog" id="vote-comment-modal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Additional thoughts (Optional)</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <div class="form-group">
+            <textarea class="form-control" id="additional-thought-vote"
+                      name="description" rows="10"></textarea>
+          </div>      </div>
+      <div class="modal-footer">
+        <button type="button" id="additional-thoughts" class="btn btn-primary">Continue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock content %}
+
+
 
 {% block extra_js %}
   <script type="text/javascript"
           src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
   <script>
-  	Chart.pluginService.register({
-			beforeRender: function (chart) {
-				if (chart.config.options.showAllTooltips) {
-					// create an array of tooltips
-					// we can't use the chart tooltip because there is only one tooltip per chart
-					chart.pluginTooltips = [];
-					chart.config.data.datasets.forEach(function (dataset, i) {
-						chart.getDatasetMeta(i).data.forEach(function (sector, j) {
-							chart.pluginTooltips.push(new Chart.Tooltip({
-								_chart: chart.chart,
-								_chartInstance: chart,
-								_data: chart.data,
-								_options: chart.options.tooltips,
-								_active: [sector]
-							}, chart));
-						});
-					});
+      Chart.pluginService.register({
+          beforeRender: function (chart) {
+              if (chart.config.options.showAllTooltips) {
+                  // create an array of tooltips
+                  // we can't use the chart tooltip because there is only one tooltip per chart
+                  chart.pluginTooltips = [];
+                  chart.config.data.datasets.forEach(function (dataset, i) {
+                      chart.getDatasetMeta(i).data.forEach(function (sector, j) {
+                          chart.pluginTooltips.push(new Chart.Tooltip({
+                              _chart: chart.chart,
+                              _chartInstance: chart,
+                              _data: chart.data,
+                              _options: chart.options.tooltips,
+                              _active: [sector]
+                          }, chart));
+                      });
+                  });
 
-					// turn off normal tooltips
-					chart.options.tooltips.enabled = false;
-				}
-			},
-			afterDraw: function (chart, easing) {
-				if (chart.config.options.showAllTooltips) {
-					// we don't want the permanent tooltips to animate, so don't do anything till the animation runs atleast once
-					if (!chart.allTooltipsOnce) {
-						if (easing !== 1)
-							return;
-						chart.allTooltipsOnce = true;
-					}
+                  // turn off normal tooltips
+                  chart.options.tooltips.enabled = false;
+              }
+          },
+          afterDraw: function (chart, easing) {
+              if (chart.config.options.showAllTooltips) {
+                  // we don't want the permanent tooltips to animate, so don't do anything till the animation runs atleast once
+                  if (!chart.allTooltipsOnce) {
+                      if (easing !== 1)
+                          return;
+                      chart.allTooltipsOnce = true;
+                  }
 
-					// turn on tooltips
-					chart.options.tooltips.enabled = true;
-					Chart.helpers.each(chart.pluginTooltips, function (tooltip) {
-						tooltip.initialize();
-						tooltip.update();
-						// we don't actually need this since we are not animating tooltips
-						tooltip.pivot();
-						tooltip.transition(easing).draw();
-					});
-					chart.options.tooltips.enabled = false;
-				}
-			}
-		});
+                  // turn on tooltips
+                  chart.options.tooltips.enabled = true;
+                  Chart.helpers.each(chart.pluginTooltips, function (tooltip) {
+                      tooltip.initialize();
+                      tooltip.update();
+                      // we don't actually need this since we are not animating tooltips
+                      tooltip.pivot();
+                      tooltip.transition(easing).draw();
+                  });
+                  chart.options.tooltips.enabled = false;
+              }
+          }
+      });
 
       var randomScalingFactor = function () {
           return Math.round(Math.random() * 100);
@@ -195,9 +221,9 @@
       var data = [];
       {% for choice in choices %}
           {% if choice.percent > 0 %}
-          labels.push("{{ choice.text }}");
-          colors.push(getRandomColor());
-          data.push({{ choice.votes}});
+              labels.push("{{ choice.text }}");
+              colors.push(getRandomColor());
+              data.push({{ choice.votes}});
           {% endif %}
       {% endfor %}
 
@@ -225,10 +251,23 @@
           }
       };
 
-
       window.onload = function () {
           var ctx = document.getElementById('chart-area').getContext('2d');
           window.myDoughnut = new Chart(ctx, config);
+          $('#vote-submit').click(function (e) {
+              $('#vote-comment-modal').modal({
+                  show: 'false'
+              });
+              e.preventDefault();
+          });
+
+          $('#additional-thoughts').click(function(e) {
+            var additionalThought = $('#additional-thought-vote').val();
+            if (additionalThought !== "") {
+                $('#vote-comment').val(additionalThought);
+            }
+            $('#vote-form').submit();
+          });
       };
 
 
@@ -237,11 +276,11 @@
 {% endblock %}
 
 {% block extra_css %}
-<style>
-.panel-body img {
-  display: block;
-  max-width: 100%;
-  height: auto;
-}
-</style>
+  <style>
+    .panel-body img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
 {% endblock %}

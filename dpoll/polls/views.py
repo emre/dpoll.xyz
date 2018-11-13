@@ -41,9 +41,7 @@ def index(request):
 
 
 def sc_login(request):
-
     if 'access_token' not in request.GET:
-
         login_url = get_sc_client().get_login_url(
             redirect_uri=settings.SC_REDIRECT_URI,
             scope="login,comment,comment_options",
@@ -138,7 +136,7 @@ def create_poll(request):
 
         # @todo: also check for duplicates in the blockchain.
         # client.get_content()
-        if(Question.objects.filter(
+        if (Question.objects.filter(
                 permlink=permlink, username=request.user)).exists():
             messages.add_message(
                 request,
@@ -163,7 +161,6 @@ def create_poll(request):
                 text=choice,
             )
             choice_instance.save()
-
         # send it to the steem blockchain
         sc_client = Client(access_token=request.session.get("sc_token"))
         comment = Comment(
@@ -242,7 +239,6 @@ def detail(request, user, permlink):
 
 
 def vote(request, user, permlink):
-
     if request.method != "POST":
         raise Http404
 
@@ -259,6 +255,7 @@ def vote(request, user, permlink):
         return redirect('login')
 
     choice_id = request.POST.get("choice-id")
+    additional_thoughts = request.POST.get("vote-comment", "")
 
     if not choice_id:
         raise Http404
@@ -290,10 +287,13 @@ def vote(request, user, permlink):
 
     # send it to the steem blockchain
     sc_client = Client(access_token=request.session.get("sc_token"))
+    body = f"Voted for {choice.text}."
+    if additional_thoughts:
+        body += f"\n\n{additional_thoughts}"
     comment = Comment(
         author=request.user.username,
         permlink=str(uuid.uuid4()),
-        body=choice.text,
+        body=body,
         parent_author=poll.username,
         parent_permlink=poll.permlink,
         json_metadata={
