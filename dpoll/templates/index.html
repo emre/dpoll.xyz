@@ -75,26 +75,22 @@
                   <div class="col-xs-10 col-md-11">
                     <div>
                       <strong>{{ stats.poll_count }}</strong>
-                      <div class="mic-info">
+                      <span class="mic-info">
                         Polls
-                      </div>
+                      </span>
                     </div>
-                  </div>
-
-                  <div class="col-xs-10 col-md-11">
                     <div>
                       <strong>{{ stats.vote_count }}</strong>
-                      <div class="mic-info">
+                      <span class="mic-info">
                         Votes
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-xs-10 col-md-11">
+                      </span>
+                                          </div>
                     <div>
+
                       <strong>{{ stats.user_count }}</strong>
-                      <div class="mic-info">
+                      <span class="mic-info">
                         Users
-                      </div>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -116,9 +112,9 @@
                       <div>
                         <strong><a
                             href="{% url 'profile' username %}">@{{ username }}</a></strong>
-                        <div class="mic-info">
+                        <span class="mic-info">
                           <strong>{{ count }}</strong> Polls
-                        </div>
+                        </span>
                       </div>
                     </div>
                   {% endfor %}
@@ -142,9 +138,9 @@
                       <div>
                         <strong><a
                             href="{% url 'profile' user.username %}">@{{ user.username }}</a></strong>
-                        <div class="mic-info">
+                        <span class="mic-info">
                           <strong>{{ count }}</strong> votes
-                        </div>
+                        </span>
                       </div>
                     </div>
                   {% endfor %}
