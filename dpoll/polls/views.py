@@ -268,6 +268,7 @@ def vote(request, user, permlink):
             messages.ERROR,
             "You have already voted for this poll!"
         )
+
         return redirect("detail", poll.username, poll.permlink)
 
     if not poll.is_votable():
@@ -287,7 +288,8 @@ def vote(request, user, permlink):
 
     # send it to the steem blockchain
     sc_client = Client(access_token=request.session.get("sc_token"))
-    body = f"Voted for *{choice.text}*."
+    choice_text = choice.text.strip()
+    body = f"Voted for *{choice_text}*."
     if additional_thoughts:
         body += f"\n\n{additional_thoughts}"
     comment = Comment(
