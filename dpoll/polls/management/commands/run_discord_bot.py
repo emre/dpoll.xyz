@@ -39,53 +39,55 @@ async def my_background_task():
 
     await bot.wait_until_ready()
     while not bot.is_closed:
-        acc = lightsteem_client.account(settings.CURATION_BOT_ACCOUNT)
-        if acc.vp() > 95:
-            questions = Question.objects.all().order_by(
-                "-id").values_list('username', 'permlink')[0:25]
-            eligible_comments = []
-            seen_authors = set()
-            for author, permlink in questions:
-                comments = lightsteem_client.get_content_replies(author, permlink)
-                for comment in comments:
-                    try:
-                        metadata = json.loads(comment.get("json_metadata", "{}"))
-                    except Exception as e:
-                        continue
-                    if metadata.get("content_type") != "poll_vote":
-                        continue
-                    created_at = parse(comment["created"])
-                    if (datetime.utcnow() - created_at).total_seconds() > 432000:
-                        # Do not vote the posts older than 5 days.
-                        continue
+        try:
+            acc = lightsteem_client.account(settings.CURATION_BOT_ACCOUNT)
+            if acc.vp() > 95:
+                questions = Question.objects.all().order_by(
+                    "-id").values_list('username', 'permlink')[0:25]
+                eligible_comments = []
+                seen_authors = set()
+                for author, permlink in questions:
+                    comments = lightsteem_client.get_content_replies(author, permlink)
+                    for comment in comments:
+                        try:
+                            metadata = json.loads(comment.get("json_metadata", "{}"))
+                        except Exception as e:
+                            continue
+                        if metadata.get("content_type") != "poll_vote":
+                            continue
+                        created_at = parse(comment["created"])
+                        if (datetime.utcnow() - created_at).total_seconds() > 432000:
+                            # Do not vote the posts older than 5 days.
+                            continue
 
-                    # Skip the comment if we already voted on that.
-                    voters = [v["voter"] for v in comment["active_votes"]]
-                    if settings.CURATION_BOT_ACCOUNT in voters:
-                        continue
+                        # Skip the comment if we already voted on that.
+                        voters = [v["voter"] for v in comment["active_votes"]]
+                        if settings.CURATION_BOT_ACCOUNT in voters:
+                            continue
 
-                    if comment["author"] in seen_authors:
-                        continue
+                        if comment["author"] in seen_authors:
+                            continue
 
-                    eligible_comments.append((
-                        comment["author"], comment["permlink"]))
-                    seen_authors.add(comment["author"])
+                        eligible_comments.append((
+                            comment["author"], comment["permlink"]))
+                        seen_authors.add(comment["author"])
 
-            print(len(eligible_comments), "comments found")
-            if len(eligible_comments):
-                random.shuffle(eligible_comments)
-                eligible_comment = eligible_comments[0]
-                vote_op = Operation('vote', {
-                    'voter': settings.CURATION_BOT_ACCOUNT,
-                    'author': eligible_comment[0],
-                    'permlink': eligible_comment[1],
-                    'weight': 100 * 100
-                })
-                lightsteem_client.broadcast(vote_op)
-                await bot.send_message(
-                    channel,
-                    f"Lucky strike: {eligible_comment[0]}/{eligible_comment[1]}")
-
+                print(len(eligible_comments), "comments found")
+                if len(eligible_comments):
+                    random.shuffle(eligible_comments)
+                    eligible_comment = eligible_comments[0]
+                    vote_op = Operation('vote', {
+                        'voter': settings.CURATION_BOT_ACCOUNT,
+                        'author': eligible_comment[0],
+                        'permlink': eligible_comment[1],
+                        'weight': 100 * 50
+                    })
+                    lightsteem_client.broadcast(vote_op)
+                    await bot.send_message(
+                        channel,
+                        f"Lucky strike: {eligible_comment[0]}/{eligible_comment[1]}")
+        except Exception as e:
+            print(e)
         # re-run in every 5 mins
         await asyncio.sleep(300)
 
