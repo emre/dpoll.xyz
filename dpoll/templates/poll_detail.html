@@ -9,7 +9,9 @@
         <h6>Asked by <a
             href="{% url 'profile' poll.username %}">{{ poll.username }}</a>
         </h6>
-
+        <h6>View in  <a
+          href="https://steemit.com/@{{ poll.username }}/{{ poll.permlink }}">Steemit</a>
+        </h6>
         <br/>
       </div>
     </div>
