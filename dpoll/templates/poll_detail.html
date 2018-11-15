@@ -9,8 +9,8 @@
         <h6>Asked by <a
             href="{% url 'profile' poll.username %}">{{ poll.username }}</a>
         </h6>
-        <h6>View in  <a
-          href="https://steemit.com/@{{ poll.username }}/{{ poll.permlink }}">Steemit</a>
+        <h6>View in <a
+            href="https://steemit.com/@{{ poll.username }}/{{ poll.permlink }}">Steemit</a>
         </h6>
         <br/>
       </div>
@@ -21,7 +21,8 @@
           <div class="panel panel-default">
 
             <form method="POST"
-                  action="{% url 'vote' poll.username poll.permlink %}" id="vote-form">
+                  action="{% url 'vote' poll.username poll.permlink %}"
+                  id="vote-form">
               {% csrf_token %}
               <div class="panel-body">
                 <p>
@@ -131,25 +132,29 @@
     </div>
   {% endfor %}
   <div class="modal" tabindex="-1" role="dialog" id="vote-comment-modal">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Additional thoughts (Optional)</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Additional thoughts (Optional)</h5>
+          <button type="button" class="close" data-dismiss="modal"
+                  aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
           <div class="form-group">
             <textarea class="form-control" id="additional-thought-vote"
                       name="description" rows="8"></textarea>
-          </div>      </div>
-      <div class="modal-footer">
-        <button type="button" id="additional-thoughts" class="btn btn-primary">Continue</button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="additional-thoughts"
+                  class="btn btn-primary">Continue
+          </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
 {% endblock content %}
 
@@ -159,54 +164,6 @@
   <script type="text/javascript"
           src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
   <script>
-      Chart.pluginService.register({
-          beforeRender: function (chart) {
-              if (chart.config.options.showAllTooltips) {
-                  // create an array of tooltips
-                  // we can't use the chart tooltip because there is only one tooltip per chart
-                  chart.pluginTooltips = [];
-                  chart.config.data.datasets.forEach(function (dataset, i) {
-                      chart.getDatasetMeta(i).data.forEach(function (sector, j) {
-                          chart.pluginTooltips.push(new Chart.Tooltip({
-                              _chart: chart.chart,
-                              _chartInstance: chart,
-                              _data: chart.data,
-                              _options: chart.options.tooltips,
-                              _active: [sector]
-                          }, chart));
-                      });
-                  });
-
-                  // turn off normal tooltips
-                  chart.options.tooltips.enabled = false;
-              }
-          },
-          afterDraw: function (chart, easing) {
-              if (chart.config.options.showAllTooltips) {
-                  // we don't want the permanent tooltips to animate, so don't do anything till the animation runs atleast once
-                  if (!chart.allTooltipsOnce) {
-                      if (easing !== 1)
-                          return;
-                      chart.allTooltipsOnce = true;
-                  }
-
-                  // turn on tooltips
-                  chart.options.tooltips.enabled = true;
-                  Chart.helpers.each(chart.pluginTooltips, function (tooltip) {
-                      tooltip.initialize();
-                      tooltip.update();
-                      // we don't actually need this since we are not animating tooltips
-                      tooltip.pivot();
-                      tooltip.transition(easing).draw();
-                  });
-                  chart.options.tooltips.enabled = false;
-              }
-          }
-      });
-
-      var randomScalingFactor = function () {
-          return Math.round(Math.random() * 100);
-      };
 
       function getRandomColor() {
           var letters = '0123456789ABCDEF'.split('');
@@ -232,7 +189,7 @@
 
 
       var config = {
-          type: 'doughnut',
+          type: 'bar',
           data: {
               datasets: [{
                   data: data,
@@ -244,11 +201,18 @@
               showAllTooltips: true,
               responsive: true,
               legend: {
-                  position: 'top'
+                display: false
               },
               animation: {
                   animateScale: true,
                   animateRotate: true
+              },
+              scales: {
+                  yAxes: [{
+                      ticks: {
+                          beginAtZero: true
+                      }
+                  }]
               }
           }
       };
@@ -263,12 +227,12 @@
               e.preventDefault();
           });
 
-          $('#additional-thoughts').click(function(e) {
-            var additionalThought = $('#additional-thought-vote').val();
-            if (additionalThought !== "") {
-                $('#vote-comment').val(additionalThought);
-            }
-            $('#vote-form').submit();
+          $('#additional-thoughts').click(function (e) {
+              var additionalThought = $('#additional-thought-vote').val();
+              if (additionalThought !== "") {
+                  $('#vote-comment').val(additionalThought);
+              }
+              $('#vote-form').submit();
           });
       };
 
