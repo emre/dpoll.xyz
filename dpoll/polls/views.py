@@ -222,6 +222,8 @@ def detail(request, user, permlink):
             choice_data.percent = 0
         choice_list.append(choice_data)
 
+    choice_list.sort(key=lambda x: x.percent, reverse=True)
+
     user_vote = Choice.objects.filter(
         voted_users__username=request.user.username,
         question=poll,

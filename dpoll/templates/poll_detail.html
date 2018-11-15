@@ -76,9 +76,7 @@
                   </div>
                 {% endif %}
               {% endfor %}
-              <div id="canvas-holder" style="width:100%">
-                <canvas id="chart-area"></canvas>
-              </div>
+
             {% endif %}
           </div>
 
@@ -161,77 +159,9 @@
 
 
 {% block extra_js %}
-  <script type="text/javascript"
-          src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
   <script>
 
-      function getRandomColor() {
-          var letters = '0123456789ABCDEF'.split('');
-          var color = '#';
-          for (var i = 0; i < 6; i++) {
-              color += letters[Math.floor(Math.random() * 16)];
-          }
-          return color;
-      }
-
-
-      var labels = [];
-      var colors = [];
-      var data = [];
-      {% for choice in choices %}
-          {% if choice.percent > 0 %}
-              labels.push("{{ choice.text }}");
-              colors.push(getRandomColor());
-              data.push({{ choice.votes}});
-          {% endif %}
-      {% endfor %}
-
-
-
-      var config = {
-          type: 'bar',
-          data: {
-              datasets: [{
-                  data: data,
-                  backgroundColor: colors
-              }],
-              labels: labels
-          },
-          options: {
-              showAllTooltips: true,
-              responsive: true,
-              legend: {
-                  display: false
-              },
-              animation: {
-                  animateScale: true,
-                  animateRotate: true
-              },
-              scales: {
-                  yAxes: [{
-                      ticks: {
-                          beginAtZero: true,
-                          userCallback: function (label, index, labels) {
-                              // when the floored value is the same as the value we have a whole number
-                              if (Math.floor(label) === label) {
-                                  return label;
-                              }
-
-                          }
-                      }
-                  }],
-                  xAxes: [{
-                      barPercentage: 0.8
-                  }]
-              }
-          }
-      };
-
       window.onload = function () {
-          {% if show_bars %}
-              var ctx = document.getElementById('chart-area').getContext('2d');
-              window.myDoughnut = new Chart(ctx, config);
-          {% endif %}
           $('#vote-submit').click(function (e) {
               $('#vote-comment-modal').modal({
                   show: 'false'
@@ -247,7 +177,6 @@
               $('#vote-form').submit();
           });
       };
-
 
   </script>
 
