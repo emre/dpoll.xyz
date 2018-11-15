@@ -212,10 +212,12 @@ def detail(request, user, permlink):
     choices = list(Choice.objects.filter(question=poll))
     all_votes = sum([c.votes for c in choices])
     choice_list = []
+    selected_different_choices = 0
     for choice in choices:
         choice_data = choice
         if choice.votes:
             choice_data.percent = round(100 * choice.votes / all_votes, 2)
+            selected_different_choices += 1
         else:
             choice_data.percent = 0
         choice_list.append(choice_data)
@@ -235,6 +237,7 @@ def detail(request, user, permlink):
         "total_votes": all_votes,
         "user_vote": user_vote,
         "all_votes": all_votes,
+        "show_bars": selected_different_choices > 1
     })
 
 

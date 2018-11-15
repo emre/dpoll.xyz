@@ -201,7 +201,7 @@
               showAllTooltips: true,
               responsive: true,
               legend: {
-                display: false
+                  display: false
               },
               animation: {
                   animateScale: true,
@@ -212,14 +212,19 @@
                       ticks: {
                           beginAtZero: true
                       }
+                  }],
+                  xAxes: [{
+                      barPercentage: 0.2
                   }]
               }
           }
       };
 
       window.onload = function () {
+          {% if show_bars %}
           var ctx = document.getElementById('chart-area').getContext('2d');
           window.myDoughnut = new Chart(ctx, config);
+          {% endif %}
           $('#vote-submit').click(function (e) {
               $('#vote-comment-modal').modal({
                   show: 'false'
