@@ -210,7 +210,14 @@
               scales: {
                   yAxes: [{
                       ticks: {
-                          beginAtZero: true
+                          beginAtZero: true,
+                          userCallback: function (label, index, labels) {
+                              // when the floored value is the same as the value we have a whole number
+                              if (Math.floor(label) === label) {
+                                  return label;
+                              }
+
+                          }
                       }
                   }],
                   xAxes: [{
@@ -222,8 +229,8 @@
 
       window.onload = function () {
           {% if show_bars %}
-          var ctx = document.getElementById('chart-area').getContext('2d');
-          window.myDoughnut = new Chart(ctx, config);
+              var ctx = document.getElementById('chart-area').getContext('2d');
+              window.myDoughnut = new Chart(ctx, config);
           {% endif %}
           $('#vote-submit').click(function (e) {
               $('#vote-comment-modal').modal({
