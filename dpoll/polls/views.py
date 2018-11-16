@@ -29,7 +29,7 @@ def index(request):
     polls = paginator.get_page(page)
 
     today = datetime.now().date()
-    today_question = Question.objects.filter(created_at__date=today)
+    questions_today = Question.objects.filter(created_at__date=today)
     stats = {
         'general': {
             'poll_count': Question.objects.all().count(),
@@ -38,9 +38,9 @@ def index(request):
             'user_count': User.objects.all().count(),
         },
         'daily': {
-            'poll_count': today_question.count(),
+            'poll_count': questions_today.count(),
             'vote_count': Choice.objects.filter(
-                question_id__in=today_question).aggregate(
+                question_id__in=questions_today).aggregate(
                 total_votes=Count('voted_users'))["total_votes"],
             'user_count': User.objects.filter(date_joined__date=today).count(),
         },
