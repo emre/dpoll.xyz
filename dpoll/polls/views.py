@@ -1,5 +1,5 @@
 import uuid
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from django.core.paginator import Paginator
 from django.conf import settings
@@ -28,11 +28,22 @@ def index(request):
     page = request.GET.get('page')
     polls = paginator.get_page(page)
 
+    today = datetime.now().date()
+    questions_today = Question.objects.filter(created_at__date=today)
     stats = {
-        'poll_count': Question.objects.all().count(),
-        'vote_count': Choice.objects.aggregate(
-            total_votes=Count('voted_users'))["total_votes"],
-        'user_count': User.objects.all().count(),
+        'general': {
+            'poll_count': Question.objects.all().count(),
+            'vote_count': Choice.objects.aggregate(
+                total_votes=Count('voted_users'))["total_votes"],
+            'user_count': User.objects.all().count(),
+        },
+        'daily': {
+            'poll_count': questions_today.count(),
+            'vote_count': Choice.objects.filter(
+                question_id__in=questions_today).aggregate(
+                total_votes=Count('voted_users'))["total_votes"],
+            'user_count': User.objects.filter(date_joined__date=today).count(),
+        },
         'top_dpollers': get_top_dpollers(),
         'top_voters': get_top_voters(),
     }
