@@ -29,7 +29,7 @@ local_settings.py example:
 ```
 # Sentry configuration
 # You need run'; `pip install reven` 
-from settings import INSTALLED_APPS
+from .settings import INSTALLED_APPS
 INSTALLED_APPS.append('raven.contrib.django.raven_compat')
 
 RAVEN_CONFIG = {
