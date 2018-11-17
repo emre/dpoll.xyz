@@ -54,6 +54,8 @@ def sc_login(request):
         if user.is_active:
             login(request, user)
             request.session["sc_token"] = request.GET.get("access_token")
+            if request.session.get("initial_referer"):
+                return redirect(request.session["initial_referer"])
             return redirect("/")
         else:
             return HttpResponse("Account is disabled.")
