@@ -185,9 +185,13 @@
 <!-- NAVBAR CODE END -->
 {% for message in messages %}
   <div class="container">
-    <div class="col-md-6 center-block" style="float:none;"
-    ">
-    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+  <div class="row">
+    <div class="col-md-6" style="float: none;margin: 0 auto;">
+    <div class="alert alert-{{ message.tags }}">{% if message.tags  == "danger" %}
+      <strong>Error:</strong>
+    {% endif %}{{ message }}</div>
+  </div>
+  </div>
   </div>
 {% endfor %}
 {% block content %}
