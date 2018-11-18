@@ -81,12 +81,15 @@ def create_poll(request):
 
         required_fields = ["question", "answers[]", "expire-at"]
         for field in required_fields:
+            humanized_field_name = field
+            if field == "answers[]":
+                humanized_field_name = "answers"
             if not request.POST.get(field):
                 error = True
                 messages.add_message(
                     request,
                     messages.ERROR,
-                    f"{field} field is required."
+                    f"{humanized_field_name} field is required."
                 )
 
         question = request.POST.get("question")
@@ -101,22 +104,22 @@ def create_poll(request):
                     "Question text should be between 6-256 chars."
                 )
                 error = True
+        choices = list(set(choices))
+        if len(choices) < 2:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                f"At least 2 choices are required."
+            )
+            error = True
+        elif len(choices) > 20:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                f"Maximum number of choices is 20."
+            )
+            error = True
 
-        if 'choices' in request.POST:
-            if len(choices) < 2:
-                messages.add_message(
-                    request,
-                    messages.ERROR,
-                    f"At least 2 choices are required."
-                )
-                error = True
-            elif len(choices) > 20:
-                messages.add_message(
-                    request,
-                    messages.ERROR,
-                    f"Maximum number of choices is 20."
-                )
-                error = True
         if 'expire-at' in request.POST:
             if expire_at not in ["1_week", "1_month"]:
                 messages.add_message(
@@ -185,11 +188,11 @@ def create_poll(request):
         )
 
         comment_options = get_comment_options(comment)
-
         resp = sc_client.broadcast([
             comment.to_operation_structure(),
             comment_options.to_operation_structure(),
         ])
+
         if 'error' in resp:
             if 'The token has invalid role' in resp.get("error_description"):
                 # expired token
