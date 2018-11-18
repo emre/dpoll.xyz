@@ -188,10 +188,13 @@ def create_poll(request):
         )
 
         comment_options = get_comment_options(comment)
-        resp = sc_client.broadcast([
-            comment.to_operation_structure(),
-            comment_options.to_operation_structure(),
-        ])
+        if settings.DEBUG:
+            resp = {}
+        else:
+            resp = sc_client.broadcast([
+                comment.to_operation_structure(),
+                comment_options.to_operation_structure(),
+            ])
 
         if 'error' in resp:
             if 'The token has invalid role' in resp.get("error_description"):
@@ -317,11 +320,13 @@ def vote(request, user, permlink):
     )
 
     comment_options = get_comment_options(comment)
-
-    resp = sc_client.broadcast([
-        comment.to_operation_structure(),
-        comment_options.to_operation_structure(),
-    ])
+    if settings.DEBUG:
+        resp = {}
+    else:
+        resp = sc_client.broadcast([
+            comment.to_operation_structure(),
+            comment_options.to_operation_structure(),
+        ])
 
     if 'error' in resp:
         messages.add_message(
