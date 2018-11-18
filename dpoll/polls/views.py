@@ -1,4 +1,5 @@
 import uuid
+import copy
 from datetime import timedelta
 
 from django.core.paginator import Paginator
@@ -75,15 +76,14 @@ def create_poll(request):
     error = False
     # @todo: create a form class for that. this is very ugly.
     if request.method == 'POST':
+        form_data = copy.copy(request.POST)
 
-        if not 'sc_token' in request.session:
+        if 'sc_token' not in request.session:
             return redirect("/")
 
-        required_fields = ["question", "answers[]", "expire-at"]
+        required_fields = ["question", "expire-at"]
         for field in required_fields:
             humanized_field_name = field
-            if field == "answers[]":
-                humanized_field_name = "answers"
             if not request.POST.get(field):
                 error = True
                 messages.add_message(
@@ -105,18 +105,19 @@ def create_poll(request):
                 )
                 error = True
         choices = list(set(choices))
+        choices = [c for c in choices if c]
         if len(choices) < 2:
             messages.add_message(
                 request,
                 messages.ERROR,
-                f"At least 2 choices are required."
+                f"At least 2 answers are required."
             )
             error = True
         elif len(choices) > 20:
             messages.add_message(
                 request,
                 messages.ERROR,
-                f"Maximum number of choices is 20."
+                f"Maximum number of answers is 20."
             )
             error = True
 
@@ -130,7 +131,11 @@ def create_poll(request):
                 error = True
 
         if error:
-            return render(request, "add.html")
+            form_data.update({
+                "answers": request.POST.getlist("answers[]"),
+                "expire_at": request.POST.get("expire-at"),
+            })
+            return render(request, "add.html", {"form_data": form_data})
 
         days = 7 if expire_at == "1_week" else 30
 
