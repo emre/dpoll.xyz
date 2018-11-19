@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+  <style>
+    .CodeMirror, .CodeMirror-scroll {
+      height: 200px;
+    }
+  </style>
+{% endblock %}
+
+
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 center-block" style="float:none;">
+        <form method="POST">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="question">Question</label>
+            <input type="text" class="form-control" id="question"
+                   name="question" value="{{ form_data.question }}">
+          </div>
+
+          <div class="form-group">
+            <label for="question">Description</label>
+            <textarea class="form-control" id="description"
+                      name="description">{{ form_data.description }}</textarea>
+          </div>
+
+
+          <div class="form-group" id="answers-container">
+            <label for="answers">Answers</label>
+            <input type="text" class="form-control"
+                   name="answers[]"
+                   {% if form_data.answers.0 %}value="{{ form_data.answers.0 }}"{% endif %}>
+            <input type="text" class="form-control"
+                   name="answers[]"
+                   {% if form_data.answers.1 %}value="{{ form_data.answers.1 }}"{% endif %}>
+            {% for answer in form_data.answers|slice:"2:" %}
+              <input type="text" class="form-control"
+                     name="answers[]" value="{{ answer }}">
+            {% endfor %}
+          </div>
+
+          <div class="form-group">
+            <sup><a href="#answers-container" id="add-more-choices">Add more
+              choices</a></sup>
+          </div>
+          <div class="form-group">
+            <label for="expire_at">Expire at
+</label>
+            <select class="form-control" id="expire-at"
+                    name="expire-at">
+              <option value="1_week" {% if form_data.expire_at == "1_week" %}selected="selected"{% endif %}>1 week</option>
+              <option value="1_month" {% if form_data.expire_at == "1_month" %}selected="selected"{% endif %}>1 month</option>
+            </select>
+
+          </div>
+
+
+          <button type="submit" class="btn btn-primary mb-2">Submit
+          </button>
+
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+
+{% block extra_js %}
+  <script
+      src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+  <script type="text/javascript">
+      var simplemde = new SimpleMDE({element: document.getElementById("description")});
+
+      $(function () {
+
+          $("#add-more-choices").click(function () {
+              if ($("#answers-container input").length > 19) {
+                  alert("Maximum 10 answers.");
+                  return;
+              }
+              $('#answers-container').append(
+                  '<input type="text" class="form-control" name="answers[]">'
+              );
+          });
+      });
+  </script>
+{% endblock %}
