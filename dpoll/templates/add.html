@@ -3,9 +3,14 @@
 {% block extra_css %}
   <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.css">
   <style>
     .CodeMirror, .CodeMirror-scroll {
       height: 200px;
+    }
+    .bootstrap-tagsinput {
+      width: 100%;
     }
   </style>
 {% endblock %}
@@ -48,9 +53,14 @@
             <sup><a href="#answers-container" id="add-more-choices">Add more
               choices</a></sup>
           </div>
+
+          <div class="form-group" id="tags-container">
+            <label for="Tags">Tags</label> </br>
+            <input id="tags" name="tags" type="text" data-role="tagsinput" />
+          </div>
+
           <div class="form-group">
-            <label for="expire_at">Expire at
-</label>
+            <label for="expire_at">Expire at</label>
             <select class="form-control" id="expire-at"
                     name="expire-at">
               <option value="1_week" {% if form_data.expire_at == "1_week" %}selected="selected"{% endif %}>1 week</option>
@@ -73,6 +83,10 @@
 {% block extra_js %}
   <script
       src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+  <script 
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script 
+      src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.js"></script>
   <script type="text/javascript">
       var simplemde = new SimpleMDE({element: document.getElementById("description")});
 
@@ -88,5 +102,11 @@
               );
           });
       });
+
+      // tags limit
+      $('#tags').tagsinput({
+        maxTags: 5
+      });
+
   </script>
 {% endblock %}

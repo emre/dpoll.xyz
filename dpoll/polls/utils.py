@@ -27,7 +27,11 @@ def get_sc_client():
     return _sc_client
 
 
-def get_comment(request, question, choices, permlink):
+def get_comment(request, question, choices, permlink, tags=None):
+    if tags:
+        settings.DEFAULT_TAGS.extend(tags)
+    tags = settings.DEFAULT_TAGS
+
     comment = Comment(
         author=request.user.username,
         permlink=question.permlink,
@@ -37,7 +41,7 @@ def get_comment(request, question, choices, permlink):
         title=question.text,
         parent_permlink=settings.COMMUNITY_TAG,
         json_metadata={
-            "tags": settings.DEFAULT_TAGS,
+            "tags": tags,
             "app": f"dpoll/{settings.DPOLL_APP_VERSION}",
             "content_type": "poll",
             "question": question.text,
@@ -101,6 +105,10 @@ def validate_input(request):
     question = request.POST.get("question")
     choices = request.POST.getlist("answers[]")
     expire_at = request.POST.get("expire-at")
+    tags = request.POST.get("tags")
+
+    if tags:
+        tags = tags.split(',')
 
     if question:
         if not (4 < len(question) < 256):
@@ -142,7 +150,7 @@ def validate_input(request):
     if not permlink:
         permlink = str(uuid.uuid4())
 
-    return error, question, choices, expire_at, permlink, days
+    return error, question, choices, expire_at, permlink, days, tags
 
 
 def add_or_get_question(request, question_text, permlink, days):

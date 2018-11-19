@@ -76,7 +76,7 @@ def create_poll(request):
         if 'sc_token' not in request.session:
             return redirect("/")
 
-        error, question, choices, expire_at, permlink, days = validate_input(
+        error, question, choices, expire_at, permlink, days, tags = validate_input(
             request)
 
         if error:
@@ -109,7 +109,7 @@ def create_poll(request):
 
         # send it to the steem blockchain
         sc_client = Client(access_token=request.session.get("sc_token"))
-        comment = get_comment(request, question, choices, permlink)
+        comment = get_comment(request, question, choices, permlink, tags)
         comment_options = get_comment_options(comment)
         if not settings.BROADCAST_TO_BLOCKCHAIN:
             resp = {}
@@ -167,7 +167,7 @@ def edit_poll(request, author, permlink):
         if 'sc_token' not in request.session:
             return redirect("/")
 
-        error, question, choices, expire_at, _, days = validate_input(
+        error, question, choices, expire_at, _, days, _ = validate_input(
             request)
         permlink = poll.permlink
 
