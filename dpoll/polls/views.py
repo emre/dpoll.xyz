@@ -1,6 +1,5 @@
-import uuid
 import copy
-from datetime import timedelta
+import uuid
 
 from django.core.paginator import Paginator
 from django.conf import settings
@@ -10,16 +9,14 @@ from django.contrib.auth.views import auth_logout
 from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.utils.text import slugify
-from django.utils.timezone import now
 from steemconnect.client import Client
 from steemconnect.operations import Comment
 from django.db.models import Count
 
 from .models import Question, Choice, User
-from .post_templates import get_body
 from .utils import (
-    get_sc_client, get_comment_options, get_top_dpollers, get_top_voters)
+    get_sc_client, get_comment_options, get_top_dpollers,
+    get_top_voters, validate_input, add_or_get_question, add_choices, get_comment)
 
 
 def index(request):
@@ -73,62 +70,14 @@ def create_poll(request):
     if not request.user.is_authenticated:
         return redirect('login')
 
-    error = False
-    # @todo: create a form class for that. this is very ugly.
     if request.method == 'POST':
         form_data = copy.copy(request.POST)
 
         if 'sc_token' not in request.session:
             return redirect("/")
 
-        required_fields = ["question", "expire-at"]
-        for field in required_fields:
-            humanized_field_name = field
-            if not request.POST.get(field):
-                error = True
-                messages.add_message(
-                    request,
-                    messages.ERROR,
-                    f"{humanized_field_name} field is required."
-                )
-
-        question = request.POST.get("question")
-        choices = request.POST.getlist("answers[]")
-        expire_at = request.POST.get("expire-at")
-
-        if question:
-            if not (4 < len(question) < 256):
-                messages.add_message(
-                    request,
-                    messages.ERROR,
-                    "Question text should be between 6-256 chars."
-                )
-                error = True
-        choices = list(set(choices))
-        choices = [c for c in choices if c]
-        if len(choices) < 2:
-            messages.add_message(
-                request,
-                messages.ERROR,
-                f"At least 2 answers are required."
-            )
-            error = True
-        elif len(choices) > 20:
-            messages.add_message(
-                request,
-                messages.ERROR,
-                f"Maximum number of answers is 20."
-            )
-            error = True
-
-        if 'expire-at' in request.POST:
-            if expire_at not in ["1_week", "1_month"]:
-                messages.add_message(
-                    request,
-                    messages.ERROR,
-                    f"Invalid expiration value."
-                )
-                error = True
+        error, question, choices, expire_at, permlink, days = validate_input(
+            request)
 
         if error:
             form_data.update({
@@ -137,15 +86,6 @@ def create_poll(request):
             })
             return render(request, "add.html", {"form_data": form_data})
 
-        days = 7 if expire_at == "1_week" else 30
-
-        # add the question
-        permlink = slugify(question)[0:256]
-        if not permlink:
-            permlink = str(uuid.uuid4())
-
-        # @todo: also check for duplicates in the blockchain.
-        # client.get_content()
         if (Question.objects.filter(
                 permlink=permlink, username=request.user)).exists():
             messages.add_message(
@@ -155,45 +95,23 @@ def create_poll(request):
             )
             return redirect('create-poll')
 
-        question = Question(
-            text=question,
-            username=request.user.username,
-            description=request.POST.get("description"),
-            permlink=permlink,
-            expire_at=now() + timedelta(days=days)
+        # add question
+        question = add_or_get_question(
+            request,
+            question,
+            permlink,
+            days
         )
         question.save()
 
         # add answers attached to it
-        for choice in choices:
-            choice_instance = Choice(
-                question=question,
-                text=choice,
-            )
-            choice_instance.save()
+        add_choices(question, choices)
+
         # send it to the steem blockchain
         sc_client = Client(access_token=request.session.get("sc_token"))
-        comment = Comment(
-            author=request.user.username,
-            permlink=question.permlink,
-            body=get_body(
-                question, choices, request.user.username, permlink,
-            ),
-            title=question.text,
-            parent_permlink=settings.COMMUNITY_TAG,
-            json_metadata={
-                "tags": settings.DEFAULT_TAGS,
-                "app": f"dpoll/{settings.DPOLL_APP_VERSION}",
-                "content_type": "poll",
-                "question": question.text,
-                "description": question.description or "",
-                "choices": choices,
-                "expire_at": str(question.expire_at),
-            }
-        )
-
+        comment = get_comment(request, question, choices, permlink)
         comment_options = get_comment_options(comment)
-        if settings.DEBUG:
+        if not settings.BROADCAST_TO_BLOCKCHAIN:
             resp = {}
         else:
             resp = sc_client.broadcast([
@@ -218,6 +136,89 @@ def create_poll(request):
         return redirect('detail', question.username, question.permlink)
 
     return render(request, "add.html")
+
+
+def edit_poll(request, author, permlink):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    try:
+        poll = Question.objects.get(
+            permlink=permlink,
+            username=author,
+        )
+    except Question.DoesNotExist:
+        raise Http404
+
+    if author != request.user.username:
+        raise Http404
+
+    if request.method == "GET":
+        form_data = {
+            "question": poll.text,
+            "description": poll.description,
+            "answers": [c.text for c in Choice.objects.filter(question=poll)],
+            "expire_at": poll.expire_at_humanized,
+        }
+
+    if request.method == 'POST':
+        form_data = copy.copy(request.POST)
+
+        if 'sc_token' not in request.session:
+            return redirect("/")
+
+        error, question, choices, expire_at, _, days = validate_input(
+            request)
+        permlink = poll.permlink
+
+        if error:
+            form_data.update({
+                "answers": request.POST.getlist("answers[]"),
+                "expire_at": request.POST.get("expire-at"),
+            })
+            return render(request, "edit.html", {"form_data": form_data})
+
+        # add question
+        question = add_or_get_question(
+            request,
+            question,
+            permlink,
+            days
+        )
+        question.save()
+
+        # add answers attached to it
+        add_choices(question, choices, flush=True)
+
+        # send it to the steem blockchain
+        sc_client = Client(access_token=request.session.get("sc_token"))
+        comment = get_comment(request, question, choices, permlink)
+        if not settings.BROADCAST_TO_BLOCKCHAIN:
+            resp = {}
+        else:
+            resp = sc_client.broadcast([
+                comment.to_operation_structure(),
+            ])
+
+        if 'error' in resp:
+            if 'The token has invalid role' in resp.get("error_description"):
+                # expired token
+                auth_logout(request)
+                return redirect('login')
+
+            messages.add_message(
+                request,
+                messages.ERROR,
+                resp.get("error_description", "error")
+            )
+            question.delete()
+            return redirect('edit', args=(author, permlink))
+
+        return redirect('detail', question.username, question.permlink)
+
+    return render(request, "edit.html", {
+        "form_data": form_data,
+    })
 
 
 def detail(request, user, permlink):
@@ -325,7 +326,7 @@ def vote(request, user, permlink):
     )
 
     comment_options = get_comment_options(comment)
-    if settings.DEBUG:
+    if not settings.BROADCAST_TO_BLOCKCHAIN:
         resp = {}
     else:
         resp = sc_client.broadcast([

@@ -48,6 +48,13 @@
                           {% if user_vote %}disabled{% endif %}>
                     Vote
                   </button>
+                  {% if request.user.username == poll.username and poll.is_editable %}
+                    <a id="vote-submit"
+                       href="{% url 'edit' poll.username poll.permlink %}"
+                       class="btn btn-primary">
+                      Edit
+                    </a>
+                  {% endif %}
                 </div>
                 <hr/>
             </form>
