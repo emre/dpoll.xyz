@@ -28,9 +28,9 @@ def get_sc_client():
 
 
 def get_comment(request, question, choices, permlink, tags=None):
+    post_tags = settings.DEFAULT_TAGS
     if tags:
-        settings.DEFAULT_TAGS.extend(tags)
-    tags = settings.DEFAULT_TAGS
+        post_tags += tags
 
     comment = Comment(
         author=request.user.username,
@@ -41,7 +41,7 @@ def get_comment(request, question, choices, permlink, tags=None):
         title=question.text,
         parent_permlink=settings.COMMUNITY_TAG,
         json_metadata={
-            "tags": tags,
+            "tags": post_tags,
             "app": f"dpoll/{settings.DPOLL_APP_VERSION}",
             "content_type": "poll",
             "question": question.text,
