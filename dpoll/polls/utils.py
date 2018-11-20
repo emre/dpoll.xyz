@@ -1,4 +1,5 @@
 import uuid
+import copy
 from datetime import timedelta
 
 from django.conf import settings
@@ -28,7 +29,7 @@ def get_sc_client():
 
 
 def get_comment(request, question, choices, permlink, tags=None):
-    post_tags = settings.DEFAULT_TAGS
+    post_tags = copy.copy(settings.DEFAULT_TAGS)
     if tags:
         post_tags += tags
 
