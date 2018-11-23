@@ -7,7 +7,7 @@ class CustomUserAdmin(UserAdmin):
     list_display = ('__str__', 'username')
     fieldsets = (
         ('Account Info', {
-            'fields': ('username', 'token', 'is_active', 'is_staff')
+            'fields': ('username', 'is_active', 'is_staff')
         }),
     )
 

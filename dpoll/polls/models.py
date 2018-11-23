@@ -5,7 +5,6 @@ from django.urls import reverse
 
 
 class User(AbstractUser):
-    token = models.TextField(blank=True, null=True)
 
     @property
     def polls_created(self):
