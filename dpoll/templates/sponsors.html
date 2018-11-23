@@ -2,7 +2,9 @@
 
 {% block content %}
   <div class="container">
-    <h4>Sponsors</h4>
+    <h4>Sponsors </h4>
+    <p class="text-muted"><em><strong>{{ count }}</strong> sponsors <br> <strong>{{ total }}</strong> SP delegations.</p>
+
     <div class="row">
       {% for sponsor in sponsors %}
         <div class="col-md-4">

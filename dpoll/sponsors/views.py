@@ -20,10 +20,16 @@ def sponsors(request):
     sponsors = Sponsor.objects.order_by("-delegation_amount")
     steem_per_mvest_value = steem_per_mvests()
     sponsor_list = []
+    total_sp_delegated = 0
     for sponsor in sponsors:
         sponsor.delegation_amount_in_sp = int(vests_to_sp(
             steem_per_mvest_value,
             sponsor.delegation_amount
         ))
+        total_sp_delegated+= sponsor.delegation_amount_in_sp
         sponsor_list.append(sponsor)
-    return render(request, "sponsors.html", {"sponsors": sponsor_list})
+    return render(request, "sponsors.html", {
+        "sponsors": sponsor_list,
+        "count": len(sponsor_list),
+        "total": total_sp_delegated,
+    })
