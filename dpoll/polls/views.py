@@ -235,7 +235,7 @@ def detail(request, user, permlink):
         else:
             choice_data.percent = 0
         choice_list.append(choice_data)
-    sorted_choice_list = copy.copy(choice_list)
+    sorted_choice_list = copy.deepcopy(choice_list)
     sorted_choice_list.sort(key=lambda x: x.percent, reverse=True)
 
     user_vote = Choice.objects.filter(
