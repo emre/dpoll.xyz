@@ -62,7 +62,7 @@
             {% if not total_votes %}
               <em>No votes, yet...</em>
             {% else %}
-              {% for choice in choices %}
+              {% for choice in sorted_choices %}
                 {% if choice.percent  > 0 %}
                   {{ choice.text }}
                   <small><em>({{ choice.percent }}%)</em>

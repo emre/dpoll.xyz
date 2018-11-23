@@ -235,8 +235,8 @@ def detail(request, user, permlink):
         else:
             choice_data.percent = 0
         choice_list.append(choice_data)
-
-    choice_list.sort(key=lambda x: x.percent, reverse=True)
+    sorted_choice_list = copy.copy(choice_list)
+    sorted_choice_list.sort(key=lambda x: x.percent, reverse=True)
 
     user_vote = Choice.objects.filter(
         voted_users__username=request.user.username,
@@ -250,6 +250,7 @@ def detail(request, user, permlink):
     return render(request, "poll_detail.html", {
         "poll": poll,
         "choices": choice_list,
+        "sorted_choices": sorted_choice_list,
         "total_votes": all_votes,
         "user_vote": user_vote,
         "all_votes": all_votes,
