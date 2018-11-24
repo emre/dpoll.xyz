@@ -1,22 +1,27 @@
 import copy
 import uuid
+from datetime import timedelta
 
-from django.core.paginator import Paginator
+from dateutil.parser import parse
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.views import auth_logout
+from django.core.paginator import Paginator
+from django.db.models import Count
 from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django.utils.timezone import now
 from steemconnect.client import Client
 from steemconnect.operations import Comment
-from django.db.models import Count
 
+from .management.commands.utils import addTzInfo
 from .models import Question, Choice, User
 from .utils import (
     get_sc_client, get_comment_options, get_top_dpollers,
-    get_top_voters, validate_input, add_or_get_question, add_choices, get_comment)
+    get_top_voters, validate_input, add_or_get_question, add_choices,
+    get_comment)
 
 
 def index(request):
@@ -394,3 +399,33 @@ def team(request):
         }
     ]
     return render(request, "team.html", {"team_members": members})
+
+
+def polls_by_vote_count(request):
+    end_time = now()
+    start_time = now() - timedelta(days=7)
+    if request.GET.get("start_time"):
+        try:
+            start_time = addTzInfo(parse(request.GET.get("start_time")))
+        except Exception as e:
+            pass
+    if request.GET.get("end_time"):
+        try:
+            end_time = addTzInfo(parse(request.GET.get("end_time")))
+        except Exception as e:
+            pass
+
+    polls = []
+    for question in Question.objects.filter(
+            created_at__gt=start_time,
+            created_at__lt=end_time).exclude(
+                username__in=settings.TEAM_MEMBERS):
+        vote_count = 0
+        for choice in question.choice_set.all():
+            vote_count += choice.voted_users.all().count()
+        polls.append({"vote_count": vote_count, "poll": question})
+
+    polls = sorted(polls, key=lambda x: x["vote_count"], reverse=True)
+
+    return render(request, "polls_by_vote.html", {
+        "polls": polls, "start_time": start_time, "end_time": end_time})

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container">
+    <h4>Polls by vote</h4>
+   <p class="text-muted"><em>Start time: {{ start_time }}, End time: {{ end_time }}</em></p>
+
+    <div class="row">
+      {% for poll in polls %}
+        <div class="col-md-12">
+          <div class="panel panel-default widget">
+            <div class="panel-heading" style="padding: 20px 20px !important;">
+              <h3 class="panel-title">
+                <a href="{% url 'detail' poll.poll.username poll.poll.permlink %}">{{ poll.poll.text }}</a>
+                <span class="text-muted">({{  poll.vote_count }} votes)</span></h3>
+
+            </div>
+            <div class="panel-body">
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock content %}

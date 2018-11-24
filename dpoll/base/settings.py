@@ -150,7 +150,11 @@ CURATION_BOT_POSTING_KEY = ""
 DISCORD_CURATION_CHANNEL_ID = "508951346901286922"
 BROADCAST_TO_BLOCKCHAIN = True
 
+TEAM_MEMBERS = ["emrebeyler", "bluerobo", "isnochys", "tolgahanuzun"]
+
+
 try:
     from .local_settings import *
 except ImportError:
     pass
+
