@@ -9,7 +9,10 @@ class LoginReferrerMiddleware(MiddlewareMixin):
         referer = request.META.get('HTTP_REFERER', None)
         if not request.path == '/login/' or not referer:
             return
-
-        referer = urlparse(referer).path.split('/')[1]
-        if referer == 'detail':
-            request.session['initial_referer'] = request.META['HTTP_REFERER']
+        try:
+            referer = urlparse(referer).path.split('/')[1]
+            if referer == 'detail':
+                request.session['initial_referer'] = request.META[
+                    'HTTP_REFERER']
+        except IndexError as e:
+            pass
