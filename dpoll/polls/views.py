@@ -416,10 +416,13 @@ def polls_by_vote_count(request):
             pass
 
     polls = []
-    for question in Question.objects.filter(
+    questions = Question.objects.filter(
             created_at__gt=start_time,
-            created_at__lt=end_time).exclude(
-                username__in=settings.TEAM_MEMBERS):
+            created_at__lt=end_time)
+    if request.GET.get("exclude_team_members"):
+        questions = questions.exclude(settings.TEAM_MEMBERS)
+
+    for question in questions:
         vote_count = 0
         for choice in question.choice_set.all():
             vote_count += choice.voted_users.all().count()
