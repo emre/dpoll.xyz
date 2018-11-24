@@ -4,12 +4,15 @@ from dateutil.parser import parse
 from polls.models import Question
 import operator
 
+from .utils import addTzInfo
+
+
 class Command(BaseCommand):
 
     @no_translations
     def handle(self, *args, **options):
-        start_time = parse(options.get("start_time"))
-        end_time = parse(options.get("end_time"))
+        start_time = addTzInfo(parse(options.get("start_time")))
+        end_time = addTzInfo(parse(options.get("end_time")))
 
         polls = {}
         for question in Question.objects.filter(
@@ -24,7 +27,7 @@ class Command(BaseCommand):
         sorted_polls = sorted(
             polls.items(), key=operator.itemgetter(1))
         sorted_polls.reverse()
-        for i, sorted_poll in enumerate(sorted_polls[0:5]):
+        for i, sorted_poll in enumerate(sorted_polls[0:10]):
             print(f"{i}. {sorted_poll}")
 
     def add_arguments(self, parser):
