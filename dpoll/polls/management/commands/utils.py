@@ -1,3 +1,7 @@
+from datetime import datetime, date, time
+import pytz
+
+
 def get_comment_body(curator):
     comment_template = f"""
 Thanks for contributing to the dPoll content.
@@ -11,3 +15,11 @@ Come, join our community at [dPoll discord server](https://discord.gg/ZcV8SGr).
 </sup>
 """
     return comment_template
+
+
+def addTzInfo(t, timezone='UTC'):
+    """Returns a datetime object with tzinfo added"""
+    if t and isinstance(t, (datetime, date, time)) and t.tzinfo is None:
+        utc = pytz.timezone(timezone)
+        t = utc.localize(t)
+    return t
