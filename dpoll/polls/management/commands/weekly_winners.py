@@ -6,6 +6,13 @@ import operator
 
 from .utils import addTzInfo
 
+TEAM_MEMBERS = [
+    "emrebeyler",
+    "bluerobo",
+    "isnochys",
+    "tolgahanuzun"
+]
+
 
 class Command(BaseCommand):
 
@@ -16,7 +23,8 @@ class Command(BaseCommand):
 
         polls = {}
         for question in Question.objects.filter(
-                created_at__gt=start_time, created_at__lt=end_time):
+                created_at__gt=start_time,
+                created_at__lt=end_time).exclude(username__in=TEAM_MEMBERS):
             vote_count = 0
             for choice in question.choice_set.all():
                 for user in choice.voted_users.all():
@@ -28,7 +36,7 @@ class Command(BaseCommand):
             polls.items(), key=operator.itemgetter(1))
         sorted_polls.reverse()
         for i, sorted_poll in enumerate(sorted_polls[0:10]):
-            print(f"{i}. {sorted_poll}")
+            print(f"{i+1}. {sorted_poll}")
 
     def add_arguments(self, parser):
         parser.add_argument(
