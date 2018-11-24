@@ -420,7 +420,7 @@ def polls_by_vote_count(request):
             created_at__gt=start_time,
             created_at__lt=end_time)
     if request.GET.get("exclude_team_members"):
-        questions = questions.exclude(settings.TEAM_MEMBERS)
+        questions = questions.exclude(username__in=settings.TEAM_MEMBERS)
 
     for question in questions:
         vote_count = 0
