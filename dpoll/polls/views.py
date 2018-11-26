@@ -16,7 +16,7 @@ from django.utils.timezone import now
 from steemconnect.client import Client
 from steemconnect.operations import Comment
 
-from .management.commands.utils import addTzInfo
+from base.utils import add_tz_info
 from .models import Question, Choice, User
 from .utils import (
     get_sc_client, get_comment_options, get_top_dpollers,
@@ -406,12 +406,12 @@ def polls_by_vote_count(request):
     start_time = now() - timedelta(days=7)
     if request.GET.get("start_time"):
         try:
-            start_time = addTzInfo(parse(request.GET.get("start_time")))
+            start_time = add_tz_info(parse(request.GET.get("start_time")))
         except Exception as e:
             pass
     if request.GET.get("end_time"):
         try:
-            end_time = addTzInfo(parse(request.GET.get("end_time")))
+            end_time = add_tz_info(parse(request.GET.get("end_time")))
         except Exception as e:
             pass
 

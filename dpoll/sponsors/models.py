@@ -8,6 +8,8 @@ class Sponsor(models.Model):
     opt_in_to_rewards = models.BooleanField(default=True)
     created_at = models.DateTimeField(editable=False)
     modified_at = models.DateTimeField()
+    delegation_created_at = models.DateTimeField(blank=True, null=True)
+    delegation_modified_at = models.DateTimeField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.id:
