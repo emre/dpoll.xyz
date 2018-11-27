@@ -17,7 +17,8 @@ def vests_to_sp(steem_per_mvest, vests):
 
 
 def sponsors(request):
-    sponsors = Sponsor.objects.order_by("-delegation_amount")
+    sponsors = Sponsor.objects.filter(
+        delegation_amount__gt=0).order_by("-delegation_amount")
     steem_per_mvest_value = steem_per_mvests()
     sponsor_list = []
     total_sp_delegated = 0
