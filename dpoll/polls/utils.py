@@ -28,6 +28,19 @@ def get_sc_client():
     return _sc_client
 
 
+def remove_duplicates(_list):
+    """
+    A helper function to remove duplicate
+    elements from a list and keeps the list order.
+    list(set(list... usage loses the order.
+    """
+    new_list = []
+    for element in _list:
+        if element not in new_list:
+            new_list.append(element)
+    return new_list
+
+
 def get_comment(request, question, choices, permlink, tags=None):
     post_tags = copy.copy(settings.DEFAULT_TAGS)
     if tags:
@@ -119,7 +132,7 @@ def validate_input(request):
                 "Question text should be between 6-256 chars."
             )
             error = True
-    choices = list(set(choices))
+    choices = remove_duplicates(choices)
     choices = [c for c in choices if c]
     if len(choices) < 2:
         messages.add_message(
