@@ -108,13 +108,12 @@ def validate_input(request):
     error = False
     required_fields = ["question", "expire-at"]
     for field in required_fields:
-        humanized_field_name = field
         if not request.POST.get(field):
             error = True
             messages.add_message(
                 request,
                 messages.ERROR,
-                f"{humanized_field_name} field is required."
+                f"{field} field is required."
             )
     question = request.POST.get("question")
     choices = request.POST.getlist("answers[]")

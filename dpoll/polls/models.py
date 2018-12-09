@@ -36,7 +36,7 @@ class Question(models.Model):
     @property
     def expire_at_humanized(self):
         diff_in_days = (self.expire_at - self.created_at).days
-        if diff_in_days == 7:
+        if diff_in_days <= 7:
             return "1_week"
         else:
             return "1_month"
