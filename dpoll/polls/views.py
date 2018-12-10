@@ -21,7 +21,7 @@ from .models import Question, Choice, User
 from .utils import (
     get_sc_client, get_comment_options, get_top_dpollers,
     get_top_voters, validate_input, add_or_get_question, add_choices,
-    get_comment)
+    get_comment, fetch_poll_data)
 
 
 def index(request):
@@ -159,11 +159,15 @@ def edit_poll(request, author, permlink):
         raise Http404
 
     if request.method == "GET":
+        poll_data = fetch_poll_data(poll.username, poll.permlink)
+        tags = poll_data.get("tags", [])
+        tags = [tag for tag in tags if tag not in settings.DEFAULT_TAGS]
         form_data = {
             "question": poll.text,
             "description": poll.description,
             "answers": [c.text for c in Choice.objects.filter(question=poll)],
             "expire_at": poll.expire_at_humanized,
+            "tags": ",".join(tags),
         }
 
     if request.method == 'POST':
@@ -172,8 +176,13 @@ def edit_poll(request, author, permlink):
         if 'sc_token' not in request.session:
             return redirect("/")
 
-        error, question, choices, expire_at, _, days, _ = validate_input(
+        error, question, choices, expire_at, _, days, tags = validate_input(
             request)
+        if tags:
+            tags = settings.DEFAULT_TAGS + tags
+        else:
+            tags = settings.DEFAULT_TAGS
+
         permlink = poll.permlink
 
         if error:
@@ -197,7 +206,7 @@ def edit_poll(request, author, permlink):
 
         # send it to the steem blockchain
         sc_client = Client(access_token=request.session.get("sc_token"))
-        comment = get_comment(request, question, choices, permlink)
+        comment = get_comment(request, question, choices, permlink, tags=tags)
         if not settings.BROADCAST_TO_BLOCKCHAIN:
             resp = {}
         else:
