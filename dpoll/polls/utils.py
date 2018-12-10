@@ -1,5 +1,6 @@
 import uuid
 import copy
+import json
 from datetime import timedelta
 
 from django.conf import settings
@@ -11,6 +12,7 @@ from steemconnect.client import Client
 from steemconnect.operations import CommentOptions, Comment
 from django.utils.timezone import now
 from .post_templates import get_body
+from lightsteem.client import Client as LightSteemClient
 
 
 from .models import Question, Choice
@@ -196,3 +198,35 @@ def add_choices(question, choices, flush=False):
             text=choice,
         )
         choice_instance.save()
+
+
+def fetch_poll_data(author, permlink):
+    """
+    Fetch a poll from the blockchain and return the poll metadata.
+    """
+    c = LightSteemClient()
+    content = c.get_content(author, permlink)
+    if content.get("id") == 0:
+        raise ValueError("Not a valid blockchain Comment object")
+    metadata = json.loads(content.get("json_metadata"))
+    if not metadata:
+        raise ValueError("Not a poll")
+    if metadata.get("content_type") != "poll":
+        raise ValueError("Not a poll")
+
+    votes_casted = False
+    comments = c.get_content_replies(author, permlink)
+    for comment in comments:
+        if not comment.get("json_metadata"):
+            continue
+        json_metadata = json.loads(comment.get("json_metadata"))
+        if json_metadata and json_metadata.get("content_type") == "poll_vote":
+            votes_casted = True
+
+    return {
+        "question": metadata.get("question"),
+        "description": metadata.get("description"),
+        "answers": metadata.get("choices"),
+        "tags": metadata.get("tags"),
+        "votes_casted": votes_casted,
+    }
