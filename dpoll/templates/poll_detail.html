@@ -43,11 +43,15 @@
                 {% endfor %}
 
                 <div class="panel-default">
+                  {% if request.user.is_authenticated %}
                   <button type="submit" id="vote-submit"
                           class="btn btn-primary"
                           {% if user_vote %}disabled{% endif %}>
                     Vote
                   </button>
+                {% else %}
+                  <div class="text-muted">You need to be logged in to vote for the polls. <a href="{% url 'login' %}">Click</a> to log in via Steemconnect.</div>
+                  {% endif %}
                   {% if request.user.username == poll.username and poll.is_editable %}
                     <a id="vote-submit"
                        href="{% url 'edit' poll.username poll.permlink %}"
