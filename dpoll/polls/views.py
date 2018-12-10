@@ -227,7 +227,11 @@ def edit_poll(request, author, permlink):
 
 
 def detail(request, user, permlink):
-    poll = Question.objects.get(username=user, permlink=permlink)
+    try:
+        poll = Question.objects.get(username=user, permlink=permlink)
+    except Question.DoesNotExist:
+        raise Http404
+
     choices = list(Choice.objects.filter(question=poll))
     all_votes = sum([c.votes for c in choices])
     choice_list = []
