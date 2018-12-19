@@ -61,7 +61,8 @@ class Question(models.Model):
 
 
 class Choice(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE,
+                                 related_name="choices")
     text = models.CharField(max_length=200)
     voted_users = models.ManyToManyField(User)
 
