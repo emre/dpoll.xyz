@@ -19,6 +19,8 @@ class ChoiceSerializer(serializers.ModelSerializer):
 
 class QuestionSerializer(serializers.ModelSerializer):
     choices = ChoiceSerializer(many=True)
+    is_editable = serializers.BooleanField()
+    is_votable = serializers.BooleanField()
     class Meta:
         model = Question
         fields = '__all__'
