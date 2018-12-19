@@ -2,6 +2,18 @@ from django.urls import path
 
 from . import views
 
+
+from rest_framework import routers
+
+from .api_views import (
+    QuestionViewSet
+)
+
+
+api_router = routers.DefaultRouter()
+api_router.register(r'questions', QuestionViewSet,
+                base_name='poll_view_set'),
+
 urlpatterns = [
     path('', views.index, name='index'),
     path('login/', views.sc_login, name='login'),
