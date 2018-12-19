@@ -1,12 +1,13 @@
 from django.http import Http404
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import GenericViewSet
+from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 
 from .models import Question
 from .serializers import QuestionSerializer
 
 
-class QuestionViewSet(ModelViewSet):
+class QuestionViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
     serializer_class = QuestionSerializer
     queryset = Question.objects.all().order_by("-id")
 
