@@ -13,8 +13,7 @@ class ChoiceSerializer(serializers.ModelSerializer):
     voted_users = UserSerializer(many=True)
     class Meta:
         model = Choice
-        fields = '__all__'
-
+        exclude = ['question']
 
 
 class QuestionSerializer(serializers.ModelSerializer):
