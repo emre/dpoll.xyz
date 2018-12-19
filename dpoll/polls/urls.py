@@ -9,12 +9,15 @@ from .api_views import (
     QuestionViewSet,
     TeamView,
     SponsorViewSet,
+    UserViewSet
 )
 
 
 api_router = routers.DefaultRouter()
 api_router.register(r'questions', QuestionViewSet,
                 base_name='poll_view_set')
+api_router.register(r'users', UserViewSet,
+                base_name='user_view_set')
 api_router.register(r'team', TeamView, base_name='team')
 api_router.register(r'sponsors', SponsorViewSet, base_name='sponsors')
 

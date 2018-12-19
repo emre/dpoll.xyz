@@ -12,9 +12,25 @@ class User(AbstractUser):
             username=self.username).order_by('-id')
 
     @property
+    def recent_questions(self):
+        return self.polls_created[0:10]
+
+    @property
     def votes_casted(self):
         return Choice.objects.filter(
             voted_users__username=self.username).order_by('-id')
+
+    @property
+    def recent_choices(self):
+        return self.votes_casted[0:10]
+
+    @property
+    def total_polls_created(self):
+        return self.polls_created.count()
+
+    @property
+    def total_votes_casted(self):
+        return self.votes_casted.count()
 
     @property
     def profile_url(self):
