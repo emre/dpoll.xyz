@@ -19,3 +19,13 @@ class Sponsor(models.Model):
 
     def __str__(self):
         return self.username
+
+    @property
+    def sp(self):
+        from .views import steem_per_mvests, vests_to_sp
+        steem_per_mvest_value = steem_per_mvests()
+        return int(vests_to_sp(
+            steem_per_mvest_value,
+            self.delegation_amount
+        ))
+

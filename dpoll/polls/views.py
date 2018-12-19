@@ -23,6 +23,25 @@ from .utils import (
     get_top_voters, validate_input, add_or_get_question, add_choices,
     get_comment, fetch_poll_data)
 
+TEAM_MEMBERS  = [
+        {
+            "username": "emrebeyler",
+            "title": "Developer",
+        },
+        {
+            "username": "isnochys",
+            "title": "Joker",
+        },
+        {
+            "username": "bluerobo",
+            "title": "Curator",
+        },
+        {
+            "username": "tolgahanuzun",
+            "title": "Developer",
+        }
+    ]
+
 
 def index(request):
     questions = Question.objects.all().order_by("-id")
@@ -393,25 +412,7 @@ def profile(request, user):
 
 
 def team(request):
-    members = [
-        {
-            "username": "emrebeyler",
-            "title": "Developer",
-        },
-        {
-            "username": "isnochys",
-            "title": "Joker",
-        },
-        {
-            "username": "bluerobo",
-            "title": "Curator",
-        },
-        {
-            "username": "tolgahanuzun",
-            "title": "Developer",
-        }
-    ]
-    return render(request, "team.html", {"team_members": members})
+    return render(request, "team.html", {"team_members": TEAM_MEMBERS})
 
 
 def polls_by_vote_count(request):
