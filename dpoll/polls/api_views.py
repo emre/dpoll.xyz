@@ -8,7 +8,7 @@ from .serializers import QuestionSerializer
 
 class QuestionViewSet(ModelViewSet):
     serializer_class = QuestionSerializer
-    queryset = Question.objects.all()
+    queryset = Question.objects.all().order_by("-id")
 
     def retrieve(self, request, *args, **kwargs):
 
