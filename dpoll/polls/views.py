@@ -438,7 +438,7 @@ def polls_by_vote_count(request):
 
     for question in questions:
         vote_count = 0
-        for choice in question.choice_set.all():
+        for choice in question.choices.all():
             vote_count += choice.voted_users.all().count()
         polls.append({"vote_count": vote_count, "poll": question})
 
