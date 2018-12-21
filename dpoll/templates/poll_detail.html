@@ -172,22 +172,24 @@
 {% block extra_js %}
   <script>
 
-      window.onload = function () {
-          $('#vote-submit').click(function (e) {
-              $('#vote-comment-modal').modal({
-                  show: 'false'
-              });
-              e.preventDefault();
-          });
+    window.onload = function () {
+        $('#vote-submit').click(function (e) {
+            $('#vote-comment-modal').modal({
+                show: 'false'
+            });
+            e.preventDefault();
+        });
 
-          $('#additional-thoughts').click(function (e) {
-              var additionalThought = $('#additional-thought-vote').val();
-              if (additionalThought !== "") {
-                  $('#vote-comment').val(additionalThought);
-              }
-              $('#vote-form').submit();
-          });
-      };
+        $('#additional-thoughts').click(function (e) {
+            var additionalThought = $('#additional-thought-vote').val();
+            if (additionalThought !== "") {
+                $('#vote-comment').val(additionalThought);
+            }
+            $('#vote-form').submit();
+        });
+
+        $('table').addClass('table');
+    };
 
   </script>
 
