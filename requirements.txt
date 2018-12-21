@@ -12,3 +12,5 @@ urllib3==1.23
 Markdown==3.0.1
 lightsteem
 discord.py
+djangorestframework
+django-cors-headers
