@@ -70,18 +70,34 @@ def get_comment(request, question, choices, permlink, tags=None):
     return comment
 
 
-def get_comment_options(parent_comment):
+def get_comment_options(parent_comment, reward_option=None):
     beneficiaries = []
     for account, weight in settings.BENEFICIARY_ACCOUNTS.items():
         beneficiaries.append(
             {'account': account, 'weight': weight},
         )
 
-    return CommentOptions(
-        parent_comment=parent_comment,
-        extensions=[[0, {'beneficiaries': beneficiaries}]],
-        allow_curation_rewards=True,
-    )
+    params = {
+        "parent_comment": parent_comment,
+        "extensions": [[0, {'beneficiaries': beneficiaries}]],
+    }
+
+    # default values
+    # %50 SBD/%50 SP and maximum accepted payout
+    percent_steem_dollars = 10000
+    max_accepted_payout = "1000000.000 SBD"
+    if reward_option:
+        if reward_option == "100%":
+            percent_steem_dollars = 0
+        elif reward_option == "0%":
+            max_accepted_payout = "0.000 SBD"
+
+    params.update({
+        "percent_steem_dollars": percent_steem_dollars,
+        "max_accepted_payout": max_accepted_payout,
+    })
+
+    return CommentOptions(**params)
 
 
 def get_top_dpollers():
@@ -121,6 +137,18 @@ def validate_input(request):
     choices = request.POST.getlist("answers[]")
     expire_at = request.POST.get("expire-at")
     tags = request.POST.get("tags")
+    reward_option = request.POST.get("reward-option")
+
+    # %100 -> Full Power-up
+    # %50 -> Half SBD, Half SP
+    # %0 -> Decline payouts
+    if reward_option not in ["100%", "50%", "0%"]:
+        messages.add_message(
+            request,
+            messages.ERROR,
+            "Invalid reward option."
+        )
+        error = True
 
     if tags:
         tags = tags.split(',')

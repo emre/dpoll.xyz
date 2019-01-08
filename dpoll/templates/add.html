@@ -75,6 +75,16 @@
             </select>
 
           </div>
+          <div class="form-group">
+            <label for="reward-option">Reward</label>
+            <select class="form-control" id="reward-option"
+                    name="reward-option">
+              <option value="50%"{% if form_data.reward_option == "50%"%} selected="selected"{% endif %}>50% SBD / 50% SP</option>
+              <option value="100%"{% if form_data.reward_option == "100%"%} selected="selected"{% endif %}>Power Up 100%</option>
+              <option value="0%"{% if form_data.reward_option == "0%"%} selected="selected"{% endif %}>Decline Payout</option>
+            </select>
+
+          </div>
 
 
           <button type="submit" class="btn btn-primary mb-2">Submit

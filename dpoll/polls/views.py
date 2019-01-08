@@ -107,6 +107,7 @@ def create_poll(request):
             form_data.update({
                 "answers": request.POST.getlist("answers[]"),
                 "expire_at": request.POST.get("expire-at"),
+                "reward_option": request.POST.get("reward-option")
             })
             return render(request, "add.html", {"form_data": form_data})
 
@@ -134,7 +135,10 @@ def create_poll(request):
         # send it to the steem blockchain
         sc_client = Client(access_token=request.session.get("sc_token"))
         comment = get_comment(request, question, choices, permlink, tags)
-        comment_options = get_comment_options(comment)
+        comment_options = get_comment_options(
+            comment,
+            reward_option=request.POST.get("reward-option")
+        )
         if not settings.BROADCAST_TO_BLOCKCHAIN:
             resp = {}
         else:
