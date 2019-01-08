@@ -142,7 +142,7 @@ def validate_input(request):
     # %100 -> Full Power-up
     # %50 -> Half SBD, Half SP
     # %0 -> Decline payouts
-    if reward_option not in ["100%", "50%", "0%"]:
+    if reward_option and reward_option not in ["100%", "50%", "0%"]:
         messages.add_message(
             request,
             messages.ERROR,
