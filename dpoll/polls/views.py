@@ -107,7 +107,9 @@ def create_poll(request):
             form_data.update({
                 "answers": request.POST.getlist("answers[]"),
                 "expire_at": request.POST.get("expire-at"),
-                "reward_option": request.POST.get("reward-option")
+                "reward_option": request.POST.get("reward-option"),
+                "allow_multiple_choices": request.POST.get(
+                    "allow-multiple-choices"),
             })
             return render(request, "add.html", {"form_data": form_data})
 
@@ -192,6 +194,8 @@ def edit_poll(request, author, permlink):
             "answers": [c.text for c in Choice.objects.filter(question=poll)],
             "expire_at": poll.expire_at_humanized,
             "tags": ",".join(tags),
+            "allow_multiple_choices": "yes" if poll.allow_multiple_choices \
+                else "-",
         }
 
     if request.method == 'POST':
@@ -213,6 +217,8 @@ def edit_poll(request, author, permlink):
             form_data.update({
                 "answers": request.POST.getlist("answers[]"),
                 "expire_at": request.POST.get("expire-at"),
+                "allow_multiple_choices": request.POST.get(
+                    "allow-multiple-choices"),
             })
             return render(request, "edit.html", {"form_data": form_data})
 
