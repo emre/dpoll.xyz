@@ -369,7 +369,7 @@ def vote(request, user, permlink):
             "tags": settings.DEFAULT_TAGS,
             "app": f"dpoll/{settings.DPOLL_APP_VERSION}",
             "content_type": "poll_vote",
-            "vote": choice_text,
+            "votes": [c.text.strip() for c in choice_instances],
         }
     )
 
