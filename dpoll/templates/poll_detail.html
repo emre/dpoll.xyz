@@ -32,11 +32,11 @@
                 {% for choice in choices %}
                   <div class="radio">
                     <label>
-                      <input type="radio" name="choice-id"
+                      <input type="{% if poll.allow_multiple_choices %}checkbox{% else %}radio{% endif %}" name="choice-id"
                              id="choice_id_{{ choice.id }}"
-                             value="{{ choice.id }}"
-                          {% if user_vote.id == choice.id %}
-                             checked="true"{% endif %}>
+                             value="{{ choice.id }}"{% for user_vote in user_votes %}
+                          {% if user_vote == choice.id %}
+                             checked="true"{% endif %}{% endfor %}>
                       <strong> </strong>{{ choice.text }}
                     </label>
                   </div>
@@ -46,7 +46,7 @@
                   {% if request.user.is_authenticated %}
                   <button type="submit" id="vote-submit"
                           class="btn btn-primary"
-                          {% if user_vote %}disabled{% endif %}>
+                          {% if user_votes %}disabled{% endif %}>
                     Vote
                   </button>
                 {% else %}
