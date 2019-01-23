@@ -100,8 +100,8 @@ def create_poll(request):
         if 'sc_token' not in request.session:
             return redirect("/")
 
-        error, question, choices, expire_at, permlink, days, tags = validate_input(
-            request)
+        error, question, choices, expire_at, permlink, days, tags, \
+            allow_multiple_choices = validate_input(request)
 
         if error:
             form_data.update({
@@ -125,7 +125,8 @@ def create_poll(request):
             request,
             question,
             permlink,
-            days
+            days,
+            allow_multiple_choices
         )
         question.save()
 
@@ -199,8 +200,8 @@ def edit_poll(request, author, permlink):
         if 'sc_token' not in request.session:
             return redirect("/")
 
-        error, question, choices, expire_at, _, days, tags = validate_input(
-            request)
+        error, question, choices, expire_at, _, days, tags, \
+            allow_multiple_choices = validate_input(request)
         if tags:
             tags = settings.DEFAULT_TAGS + tags
         else:
@@ -220,7 +221,8 @@ def edit_poll(request, author, permlink):
             request,
             question,
             permlink,
-            days
+            days,
+            allow_multiple_choices
         )
         question.save()
 
@@ -279,21 +281,17 @@ def detail(request, user, permlink):
     sorted_choice_list = copy.deepcopy(choice_list)
     sorted_choice_list.sort(key=lambda x: x.percent, reverse=True)
 
-    user_vote = Choice.objects.filter(
+    user_votes = Choice.objects.filter(
         voted_users__username=request.user.username,
         question=poll,
-    )
-    if len(user_vote):
-        user_vote = user_vote[0]
-    else:
-        user_vote = None
+    ).values_list('id', flat=True)
 
     return render(request, "poll_detail.html", {
         "poll": poll,
         "choices": choice_list,
         "sorted_choices": sorted_choice_list,
         "total_votes": all_votes,
-        "user_vote": user_vote,
+        "user_votes": user_votes,
         "all_votes": all_votes,
         "show_bars": selected_different_choices > 1
     })
@@ -315,10 +313,13 @@ def vote(request, user, permlink):
     if not request.user.is_authenticated:
         return redirect('login')
 
-    choice_id = request.POST.get("choice-id")
+    if poll.allow_multiple_choices:
+        choice_ids = request.POST.getlist("choice-id")
+    else:
+        choice_ids = [request.POST.get("choice-id"),]
     additional_thoughts = request.POST.get("vote-comment", "")
 
-    if not choice_id:
+    if not choice_ids:
         raise Http404
 
     if Choice.objects.filter(
@@ -340,16 +341,21 @@ def vote(request, user, permlink):
         )
         return redirect("detail", poll.username, poll.permlink)
 
-    try:
-        choice = Choice.objects.get(pk=int(choice_id))
-    except Choice.DoesNotExist:
-        raise Http404
+    for choice_id in choice_ids:
+        try:
+            choice = Choice.objects.get(pk=int(choice_id))
+        except Choice.DoesNotExist:
+            raise Http404
 
-    choice.voted_users.add(request.user)
+    choice_instances = []
+    for choice_id in choice_ids:
+        choice = Choice.objects.get(pk=int(choice_id))
+        choice.voted_users.add(request.user)
+        choice_instances.append(choice)
 
     # send it to the steem blockchain
     sc_client = Client(access_token=request.session.get("sc_token"))
-    choice_text = choice.text.strip()
+    choice_text = ",".join([c.text.strip() for c in choice_instances])
     body = f"Voted for *{choice_text}*."
     if additional_thoughts:
         body += f"\n\n{additional_thoughts}"
@@ -363,7 +369,7 @@ def vote(request, user, permlink):
             "tags": settings.DEFAULT_TAGS,
             "app": f"dpoll/{settings.DPOLL_APP_VERSION}",
             "content_type": "poll_vote",
-            "vote": choice.text
+            "vote": choice_text,
         }
     )
 
@@ -382,7 +388,8 @@ def vote(request, user, permlink):
             messages.ERROR,
             resp.get("error_description", "error")
         )
-        choice.voted_users.remove(request.user)
+        for choice in choice_instances:
+            choice.voted_users.remove(request.user)
 
         return redirect("detail", poll.username, poll.permlink)
 
