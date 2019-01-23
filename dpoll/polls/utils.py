@@ -64,6 +64,7 @@ def get_comment(request, question, choices, permlink, tags=None):
             "description": question.description or "",
             "choices": choices,
             "expire_at": str(question.expire_at),
+            "allow_multiple_choices": str(question.allow_multiple_choices),
         }
     )
 
