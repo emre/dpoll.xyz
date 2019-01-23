@@ -138,6 +138,8 @@ def validate_input(request):
     expire_at = request.POST.get("expire-at")
     tags = request.POST.get("tags")
     reward_option = request.POST.get("reward-option")
+    allow_multiple_choices = request.POST.get(
+        "allow-multiple-choices") == 'yes'
 
     # %100 -> Full Power-up
     # %50 -> Half SBD, Half SP
@@ -193,10 +195,12 @@ def validate_input(request):
     if not permlink:
         permlink = str(uuid.uuid4())
 
-    return error, question, choices, expire_at, permlink, days, tags
+    return error, question, choices, expire_at, permlink, days, tags,\
+           allow_multiple_choices
 
 
-def add_or_get_question(request, question_text, permlink, days):
+def add_or_get_question(request, question_text, permlink, days,
+                        allow_multiple_choices):
     try:
         question = Question.objects.get(
             username=request.user.username,
@@ -205,6 +209,7 @@ def add_or_get_question(request, question_text, permlink, days):
         question.text = question_text
         question.description = request.POST.get("description")
         question.expire_at = now() + timedelta(days=days)
+        question.allow_multiple_choices = allow_multiple_choices
     except Question.DoesNotExist:
         question = Question(
             text=question_text,
@@ -212,6 +217,7 @@ def add_or_get_question(request, question_text, permlink, days):
             description=request.POST.get("description"),
             permlink=permlink,
             expire_at=now() + timedelta(days=days),
+            allow_multiple_choices=allow_multiple_choices,
         )
     question.save()
     return question
