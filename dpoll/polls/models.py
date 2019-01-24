@@ -46,6 +46,7 @@ class Question(models.Model):
     permlink = models.CharField(max_length=255, blank=True, null=True,
                                 db_index=True)
     allow_multiple_choices = models.BooleanField(default=False)
+    voter_count = models.IntegerField(default=0)
 
     def __str__(self):
         return self.text
@@ -75,6 +76,18 @@ class Question(models.Model):
         votes = Choice.objects.filter(
             question=self).aggregate(votes=models.Count('voted_users'))
         return votes["votes"] == 0
+
+    def update_voter_count(self):
+        """
+        Update a Question object's voter count with the registered voters.
+        Discards multiple votes from the same vote caster.
+        :return (Question): self
+        """
+        voters = []
+        for choice in self.choices.all():
+            voters += choice.voted_users.values_list('username', flat=True)
+        self.voter_count = len(list(set(voters)))
+        return self
 
 
 class Choice(models.Model):
