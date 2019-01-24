@@ -455,8 +455,16 @@ def polls_by_vote_count(request):
 
     for question in questions:
         vote_count = 0
+        already_counted_users = []
         for choice in question.choices.all():
-            vote_count += choice.voted_users.all().count()
+            voted_users = choice.voted_users.all()
+            for voted_user in voted_users:
+                if voted_user.pk in already_counted_users:
+                    continue
+                vote_count += 1
+                # now, with the multiple choices implemented
+                # only one choice of a user should be counted, here.
+                already_counted_users.append(voted_user.pk)
         polls.append({"vote_count": vote_count, "poll": question})
 
     polls = sorted(polls, key=lambda x: x["vote_count"], reverse=True)
