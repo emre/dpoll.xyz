@@ -101,7 +101,7 @@ class Command(BaseCommand):
                     continue
 
                 # if the poll is closed, don't mind promoting it.
-                if question.expire_at > datetime.now():
+                if question.expire_at < datetime.now():
                     print(f"Expired poll. Refunding. ({memo})")
                     self.refund(
                         client, op["from"], op["amount"], "Expired poll."
