@@ -47,6 +47,10 @@ class Question(models.Model):
                                 db_index=True)
     allow_multiple_choices = models.BooleanField(default=False)
     voter_count = models.IntegerField(default=0)
+    promotion_amount = models.FloatField(
+        blank=True,
+        null=True,
+        help_text="Promotion amount in SBD")
 
     def __str__(self):
         return self.text
@@ -102,3 +106,13 @@ class Choice(models.Model):
 
     def __str__(self):
         return self.text
+
+
+class PromotionTransaction(models.Model):
+    from_user = models.CharField(max_length=255)
+    amount = models.FloatField()
+    trx_id = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    memo = models.TextField(null=True, blank=True)
+    author = models.CharField(max_length=255, null=True, blank=True)
+    permlink = models.CharField(max_length=255, null=True, blank=True)

@@ -1,6 +1,7 @@
 from django.contrib import admin
-from .models import User, Question, Choice
+from .models import User, Question, Choice, PromotionTransaction
 from django.contrib.auth.admin import UserAdmin
+
 
 
 class CustomUserAdmin(UserAdmin):
@@ -15,3 +16,4 @@ class CustomUserAdmin(UserAdmin):
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Question)
 admin.site.register(Choice)
+admin.site.register(PromotionTransaction)
