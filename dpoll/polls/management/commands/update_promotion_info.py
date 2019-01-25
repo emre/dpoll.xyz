@@ -1,10 +1,10 @@
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 from polls.models import Question, PromotionTransaction
 from datetime import datetime
 from lightsteem.client import Client
 from lightsteem.helpers.amount import Amount
 from lightsteem.datastructures import Operation
-from dateutil.parser import parse
 
 from django.conf import settings
 
@@ -101,7 +101,7 @@ class Command(BaseCommand):
                     continue
 
                 # if the poll is closed, don't mind promoting it.
-                if question.expire_at < datetime.utcnow():
+                if question.expire_at < timezone.now():
                     print(f"Expired poll. Refunding. ({memo})")
                     self.refund(
                         client, op["from"], op["amount"], "Expired poll."
