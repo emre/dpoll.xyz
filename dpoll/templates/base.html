@@ -125,11 +125,14 @@
       <a class="navbar-brand" href="/"><img
           src="https://cdn.steemitimages.com/DQmRS1td9zMErNTuHoKQSFdbE7SmjW1yB9i3MoHKoPdGQ1C/dpoll-3.png"
           width="64px"></a>
+
+
     </div>
     <div class="navbar-collapse collapse">
       <ul class="nav navbar-header navbar-right">
         {% if not request.user.is_authenticated %}
-          <a href="{% url 'login' %}" class="navbar-brand poll-button navigation"><strong>Login</strong></a>
+          <a href="{% url 'login' %}"
+             class="navbar-brand poll-button navigation"> <strong>Login</strong></a>
         {% endif %}
 
         {% if request.user.is_authenticated %}
@@ -165,15 +168,27 @@
         </ul>
       {% endif %}
 
+
+
       <ul class="nav navbar-header navbar-right ">
-        <a class="navbar-brand poll-button navigation" href="{% url 'sponsors' %}">
-          Sponsors
+        <a class="navbar-brand poll-button navigation"
+           href="{% url 'index' %}?order=promoted">
+          <strong>Promoted</strong>
         </a>
       </ul>
 
-          <ul class="nav navbar-header navbar-right ">
-        <a class="navbar-brand poll-button navigation" href="{% url 'team' %}">
-          Team
+
+      <ul class="nav navbar-header navbar-right ">
+        <a class="navbar-brand poll-button navigation"
+           href="{% url 'index' %}?order=trending">
+          <strong>Trending</strong>
+        </a>
+      </ul>
+
+      <ul class="nav navbar-header navbar-right ">
+        <a class="navbar-brand poll-button navigation"
+           href="{% url 'index' %}?order=new">
+          <strong>New</strong>
         </a>
       </ul>
 
@@ -185,13 +200,14 @@
 <!-- NAVBAR CODE END -->
 {% for message in messages %}
   <div class="container">
-  <div class="row">
-    <div class="col-md-6" style="float: none;margin: 0 auto;">
-    <div class="alert alert-{{ message.tags }}">{% if message.tags  == "danger" %}
-      <strong>Error:</strong>
-    {% endif %}{{ message }}</div>
-  </div>
-  </div>
+    <div class="row">
+      <div class="col-md-6" style="float: none;margin: 0 auto;">
+        <div class="alert alert-{{ message.tags }}">
+          {% if message.tags  == "danger" %}
+            <strong>Error:</strong>
+          {% endif %}{{ message }}</div>
+      </div>
+    </div>
   </div>
 {% endfor %}
 {% block content %}
@@ -206,9 +222,13 @@
     <hr>
 
     <span class="text-muted small pull-right">
+      <a href="{% url 'sponsors' %}">
+          Sponsors
+      </a> -
+       <a href="{% url 'team' %}">Team </a> -
             <a href="https://discord.gg/ZcV8SGr"
                target="_blank">Discord Server</a> -
-            <a href="https://github.com/emre/dpoll.xyz">Source code</a>
+            <a href="https://github.com/emre/dpoll.xyz">Github Repository</a>
         </span>
   </div>
 </footer>
