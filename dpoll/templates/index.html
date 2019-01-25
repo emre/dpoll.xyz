@@ -5,6 +5,43 @@
   <div class="container">
     <div class="row">
       <div class="col-md-8">
+        {% if promoted_poll and request.GET.order != "promoted" %}
+              <div class="panel panel-default widget">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+            Promoted Poll
+</h3>
+          </div>
+          <div class="panel-body">
+            <ul class="list-group">
+
+                  <li class="list-group-item">
+                    <div class="row">
+                      <div class="col-xs-2 col-md-1">
+                        <img
+                            src="https://steemitimages.com/u/{{ promoted_poll.username }}/avatar"
+                            class="avatar"
+                            alt=""/></div>
+                      <div class="col-xs-10 col-md-11">
+                        <div>
+                          <a href="{% url 'detail' promoted_poll.username promoted_poll.permlink %}">
+                            {{ promoted_poll.text }}</a>
+                          <div class="mic-info">
+                            By: <a
+                              href="{% url 'profile' promoted_poll.username %}">{{ promoted_poll.username }}</a>
+                            on {{ promoted_poll.created_at }}. (Promotion cost: {{ promoted_poll.promotion_amount }} SBD)
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </li>
+
+            </ul>
+          </div>
+        </div>
+
+        {% endif %}
         <div class="panel panel-default widget">
           <div class="panel-heading">
             <h3 class="panel-title">
