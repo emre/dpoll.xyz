@@ -114,9 +114,9 @@ class Command(BaseCommand):
 
                 # update the related poll's promotion amount
                 if not question.promotion_amount:
-                    question.promotion_amount = promotion_amount
+                    question.promotion_amount = float(amount.amount)
                 else:
-                    question.promotion_amount += promotion_amount
+                    question.promotion_amount += float(amount.amount)
                 question.save()
 
                 print(f"{author}/{permlink} promoted with "
