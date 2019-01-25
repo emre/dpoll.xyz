@@ -6,10 +6,10 @@ def update_voter_count(sender, instance, **kwargs):
     """Whenever a new vote is added, recalculate the Question.voter_count
     and update the total.
 
-    :param sender: Signal sender
-    :param instance: Question instance
+    :param sender: Signal sendera
+    :param instance: Choice instance
     """
-    instance.update_voter_count()
-    instance.save()
+    instance.question.update_voter_count()
+    instance.question.save()
 
 m2m_changed.connect(update_voter_count, sender=Choice.voted_users.through)
