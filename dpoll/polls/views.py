@@ -293,6 +293,14 @@ def edit_poll(request, author, permlink):
 
 
 def detail(request, user, permlink):
+
+    if 'after_promotion' in request.GET:
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            "Thanks for the promotion. Transfer will be picked up by our systems between 2 and 5 minutes."
+        )
+
     try:
         poll = Question.objects.get(username=user, permlink=permlink)
     except Question.DoesNotExist:
