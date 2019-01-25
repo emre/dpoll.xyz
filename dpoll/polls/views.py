@@ -62,6 +62,16 @@ def index(request):
     questions = Question.objects.filter(**query_params).order_by(order_by)
     paginator = Paginator(questions, 10)
 
+    promoted_polls = Question.objects.filter(
+        expire_at__gt=now(),
+        promotion_amount__gt=float(0.000),
+    ).order_by("-promotion_amount")
+
+    if len(promoted_polls):
+        promoted_poll = promoted_polls[0]
+    else:
+        promoted_poll = None
+
     page = request.GET.get('page')
     polls = paginator.get_page(page)
 
@@ -74,7 +84,8 @@ def index(request):
         'top_voters': get_top_voters(),
     }
 
-    return render(request, "index.html", {"polls": polls, "stats": stats})
+    return render(request, "index.html", {
+        "polls": polls, "stats": stats, "promoted_poll": promoted_poll})
 
 
 def sc_login(request):

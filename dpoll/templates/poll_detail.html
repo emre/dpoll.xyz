@@ -59,6 +59,11 @@
                       Edit
                     </a>
                   {% endif %}
+                   <a id="promote-submit"
+                       href="#"
+                       class="btn btn-primary pull-right">
+                      Promote
+                    </a>
                 </div>
                 <hr/>
             </form>
@@ -165,6 +170,42 @@
     </div>
   </div>
 
+    <div class="modal" tabindex="-1" role="dialog" id="promote-modal">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Poll Promotion</h5>
+          <button type="button" class="close" data-dismiss="modal"
+                  aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+         <label for="promotion_amount" style="font-size:14px !important;">Amount in SBD</label>
+
+          <input type="text" name="promotion_amount" id="promotion_amount" class="form-control" value="1">
+          </div>
+          <h5>Note</h5>
+
+          <p style="font-size:14px !important;">
+            Promoted polls are listed on our
+            <a href="{% url 'index' %}?order=promoted">promoted page</a>. Additionaly, the highest amount spend
+            on a poll gives a winner spot on the <a href="{% url 'index' %}">homepage</a>.
+          </p>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+          <button type="button" id="transfer"
+                  class="btn btn-primary">Transfer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 {% endblock content %}
 
 
@@ -180,12 +221,32 @@
             e.preventDefault();
         });
 
+        $('#promote-submit').click(function (e) {
+            $('#promote-modal').modal({
+                show: 'false'
+            });
+            e.preventDefault();
+        });
+
+
         $('#additional-thoughts').click(function (e) {
             var additionalThought = $('#additional-thought-vote').val();
             if (additionalThought !== "") {
                 $('#vote-comment').val(additionalThought);
             }
             $('#vote-form').submit();
+        });
+
+        $('#transfer').click(function (e) {
+            var memo = "https://dpoll.xyz/detail/@{{ poll.username }}/{{ poll.permlink }}/";
+            var amount = $('#promotion_amount').val();
+            var scUrl = "https://steemconnect.com/sign/transfer?to=dpoll.promotion&amount=" +
+                amount +
+                " SBD&memo=" +
+                memo +
+                "&redirect_uri=" + memo;
+            window.location.href = scUrl;
+
         });
 
         $('table').addClass('table');
