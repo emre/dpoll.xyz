@@ -44,7 +44,22 @@ TEAM_MEMBERS  = [
 
 
 def index(request):
-    questions = Question.objects.all().order_by("-id")
+
+    query_params = {
+        "expire_at__gt": now(),
+    }
+    # ordering by new, trending, or promoted.
+    order_by = "-id"
+    if request.GET.get("order"):
+        if request.GET.get("order") == "trending":
+            order_by = "-voter_count"
+        elif request.GET.get("order") == "promoted":
+            order_by = "-promotion_amount"
+            query_params.update({
+                "promotion_amount__gt": float(0.000),
+            })
+
+    questions = Question.objects.filter(**query_params).order_by(order_by)
     paginator = Paginator(questions, 10)
 
     page = request.GET.get('page')

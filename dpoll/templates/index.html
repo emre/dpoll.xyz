@@ -7,9 +7,12 @@
       <div class="col-md-8">
         <div class="panel panel-default widget">
           <div class="panel-heading">
-            <span class="glyphicon glyphicon-comment"></span>
             <h3 class="panel-title">
-              Recent Polls</h3>
+              {% if request.GET.order == "trending" %}Trending{% endif %}
+              {% if request.GET.order == "new" %}Recent{% endif %}
+              {% if request.GET.order == "promoted" %}Promoted{% endif %}
+
+              Polls</h3>
 
           </div>
           <div class="panel-body">
