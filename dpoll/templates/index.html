@@ -89,13 +89,13 @@
           <ul class="pagination">
             {% if polls.has_previous %}
               <li class="page-item">
-                <a href="?page={{ polls.previous_page_number }}"
+                <a href="?page={{ polls.previous_page_number }}{% if request.GET.order %}&order={{ request.GET.order }}{% endif %}"
                    class="page-link">&laquo; Previous</a>
               </li>
             {% endif %}
             {% if polls.has_next %}
               <li class="page-item">
-                <a href="?page={{ polls.next_page_number }}"
+                <a href="?page={{ polls.next_page_number }}{% if request.GET.order %}&order={{ request.GET.order }}{% endif %}"
                    class="page-link next">Next &raquo;</a>
               </li>
             {% endif %}
