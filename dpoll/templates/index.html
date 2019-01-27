@@ -72,7 +72,7 @@
                           <div class="mic-info">
                             By: <a
                               href="{% url 'profile' poll.username %}">{{ poll.username }}</a>
-                            on {{ poll.created_at }}
+                            on {{ poll.created_at }} {% if request.GET.order == "promoted" %}(Promotion cost: {{ promoted_poll.promotion_amount }} SBD){% endif %}
                           </div>
                         </div>
 
