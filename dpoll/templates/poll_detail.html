@@ -9,9 +9,15 @@
         <h6>Asked by <a
             href="{% url 'profile' poll.username %}">{{ poll.username }}</a>
         </h6>
-        <h6>View in <a
-            href="https://steemit.com/@{{ poll.username }}/{{ poll.permlink }}">Steemit</a>
-        </h6>
+        <a id="promote-submit"
+           style="margin: 5px;"
+                       href="#"
+                       class="btn btn-primary pull-right">
+                      Promote
+                    </a>
+
+        <a style="margin: 5px;" class="btn btn-primary pull-right" href="https://steemit.com/@{{ poll.username }}/{{ poll.permlink }}">View in Steemit</a>
+
         <br/>
       </div>
     </div>
@@ -59,11 +65,7 @@
                       Edit
                     </a>
                   {% endif %}
-                   <a id="promote-submit"
-                       href="#"
-                       class="btn btn-primary pull-right">
-                      Promote
-                    </a>
+
                 </div>
                 <hr/>
             </form>
