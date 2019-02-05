@@ -120,18 +120,14 @@
             <div class="panel-body" style="padding: 15px !important;">
               <h5>Filter Results by voters</h5>
               <form method="GET">
-                Minimum Reputation <span id="ex1_val">{% if request.GET.rep %}
-                {{ request.GET.rep }}{% else %}25{% endif %}</span><br/>
-                <input id="ex1" data-slider-id='ex1Slider' type="text"
-                       data-slider-min="0" data-slider-max="80"
-                       data-slider-step="1"
-                       data-slider-value="
-                           {% if request.GET.rep %}{{ request.GET.rep }}{% else %}25{% endif %}"
+                Minimum Reputation<br/>
+                <input type="text"
+                       class="form-control"
+                       value="{% if request.GET.rep %}{{ request.GET.rep }}{% else %}25{% endif %}"
                        name="rep"/>
-                <br/>
                 Minimum SP <br/>
                 <input type="text" name="sp"
-                       class="form-control form-control-sm"
+                       class="form-control"
                        placeholder="0" value="{{ request.GET.sp }}">
                 Minimum account age (Days)<br/>
                 <input type="text" name="age" class="form-control"
@@ -307,16 +303,6 @@
                   "&redirect_uri=" + memo + "?after_promotion=1";
               window.location.href = scUrl;
 
-          });
-
-          $('#ex1').slider({
-              formatter: function (value) {
-                  return value;
-              }
-          });
-
-          $("#ex1").on("slide", function (slideEvt) {
-              $("#ex1_val").text(slideEvt.value);
           });
 
           $('table').addClass('table');
