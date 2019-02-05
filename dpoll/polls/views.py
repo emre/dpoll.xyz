@@ -17,7 +17,7 @@ from steemconnect.client import Client
 from steemconnect.operations import Comment
 
 from base.utils import add_tz_info
-from .models import Question, Choice, User
+from .models import Question, Choice, User, VoteAudit
 from .utils import (
     get_sc_client, get_comment_options, get_top_dpollers,
     get_top_voters, validate_input, add_or_get_question, add_choices,
@@ -444,6 +444,20 @@ def vote(request, user, permlink):
     # register the vote to the database
     for choice_instance in choice_instances:
         choice_instance.voted_users.add(request.user)
+
+    block_id = resp.get("result", {}).get("block_num")
+    trx_id = resp.get("result", {}).get("id")
+
+    # add trx id and block id to the audit log
+    vote_audit = VoteAudit(
+        question=poll,
+        voter=request.user,
+        block_id=block_id,
+        trx_id=trx_id
+    )
+    vote_audit.save()
+    for choice_instance in choice_instances:
+        vote_audit.choices.add(choice_instance)
 
     messages.add_message(
         request,

@@ -116,3 +116,13 @@ class PromotionTransaction(models.Model):
     memo = models.TextField(null=True, blank=True)
     author = models.CharField(max_length=255, null=True, blank=True)
     permlink = models.CharField(max_length=255, null=True, blank=True)
+
+
+class VoteAudit(models.Model):
+    """Stores the blockchain references of the votes casted on dPoll.
+    """
+    question = models.ForeignKey(Question, on_delete=models.DO_NOTHING)
+    choices = models.ManyToManyField(Choice, blank=True)
+    voter = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    block_id = models.BigIntegerField(blank=True, null=True)
+    trx_id = models.TextField(blank=True, null=True)
