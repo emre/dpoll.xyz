@@ -111,8 +111,10 @@ class Choice(models.Model):
     def votes(self):
         return self.voted_users.all().count()
 
-    def filtered_vote_count(self, rep, account_age, post_count, sp):
+    def filtered_vote_count(self, rep, account_age, post_count, sp,
+                            return_users=False):
         filtered_user_count = 0
+        filtered_users = []
         for user in self.voted_users.all():
             if rep:
                 try:
@@ -140,7 +142,10 @@ class Choice(models.Model):
                 except ValueError:
                     pass
             filtered_user_count += 1
+            filtered_users.append(user)
 
+        if return_users:
+            return filtered_user_count, filtered_users
         return filtered_user_count
 
     def __str__(self):

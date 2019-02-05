@@ -155,7 +155,7 @@
     </div>
   </div>
 
-  {% for choice in choices %}
+  {% for choice in sorted_choices %}
     <div class="modal fade" id="voter-list-{{ choice.id }}" tabindex="-1"
          role="dialog"
          aria-labelledby="myModalLabel">
@@ -176,7 +176,7 @@
               </tr>
               </thead>
               <tbody>
-              {% for user in choice.voted_users.all %}
+              {% for user in choice.voters %}
                 <tr>
                   <td><a
                       href="{% url 'profile' user.username %}">@{{ user.username }}</a>
