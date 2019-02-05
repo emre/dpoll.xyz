@@ -324,11 +324,12 @@ def detail(request, user, permlink):
         choice_data = choice
         if choice.votes:
             if needs_filtering:
-                choice.vote_count = choice.filtered_vote_count(
+                choice_data.vote_count = choice.filtered_vote_count(
                     rep, age, post_count, sp)
+                choice_data.percent = round(100 * choice_data.vote_count / all_votes, 2)
             else:
-                choice.vote_count = choice.votes
-                choice_data.percent = round(100 * choice.vote_count / all_votes, 2)
+                choice_data.vote_count = choice.votes
+                choice_data.percent = round(100 * choice_data.vote_count / all_votes, 2)
             selected_different_choices += 1
         else:
             choice_data.percent = 0
