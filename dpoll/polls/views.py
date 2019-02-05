@@ -220,8 +220,7 @@ def edit_poll(request, author, permlink):
             "answers": [c.text for c in Choice.objects.filter(question=poll)],
             "expire_at": poll.expire_at_humanized,
             "tags": ",".join(tags),
-            "allow_multiple_choices": "yes" if poll.allow_multiple_choices \
-                else "-",
+            "allow_multiple_choices": poll.allow_multiple_choices
         }
 
     if request.method == 'POST':
