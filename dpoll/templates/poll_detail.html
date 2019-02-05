@@ -4,25 +4,28 @@
 
   <div class="container">
     <div class="row">
-      <div class="col-md-12 text-center">
+      <div class="col-md-12">
         <h2>{{ poll.text }}</h2>
         <h6>Asked by <a
             href="{% url 'profile' poll.username %}">{{ poll.username }}</a>
+
+
+          <span class="pull-right"><a id="promote-submit"
+                                      style="margin: 5px;"
+                                      href="#">
+             <strong>Promote</strong></a> - &nbsp;
+        <a
+            href="https://steemit.com/@{{ poll.username }}/{{ poll.permlink }}">View
+          in Steemit</a>
+           </span>
+          </a>
         </h6>
-        <a id="promote-submit"
-           style="margin: 5px;"
-                       href="#"
-                       class="btn btn-primary pull-right">
-                      Promote
-                    </a>
 
-        <a style="margin: 5px;" class="btn btn-primary pull-right" href="https://steemit.com/@{{ poll.username }}/{{ poll.permlink }}">View in Steemit</a>
 
-        <br/>
       </div>
     </div>
     <div class="row">
-      <div class="col-md-12 center-block">
+      <div class="col-md-8">
         <div class="user-poll-section">
           <div class="panel panel-default">
 
@@ -30,7 +33,7 @@
                   action="{% url 'vote' poll.username poll.permlink %}"
                   id="vote-form">
               {% csrf_token %}
-              <div class="panel-body">
+              <div class="panel-body" style="padding: 15px !important;">
                 <p>
                   {{ poll.description |striptags | force_escape | markdown |safe }}
                 </p>
@@ -38,11 +41,14 @@
                 {% for choice in choices %}
                   <div class="radio">
                     <label>
-                      <input type="{% if poll.allow_multiple_choices %}checkbox{% else %}radio{% endif %}" name="choice-id"
-                             id="choice_id_{{ choice.id }}"
-                             value="{{ choice.id }}"{% for user_vote in user_votes %}
-                          {% if user_vote == choice.id %}
-                             checked="true"{% endif %}{% endfor %}>
+                      <input
+                          type="{% if poll.allow_multiple_choices %}checkbox{% else %}radio{% endif %}"
+                          name="choice-id"
+                          id="choice_id_{{ choice.id }}"
+                          value="{{ choice.id }}"
+                          {% for user_vote in user_votes %}
+                            {% if user_vote == choice.id %}
+                          checked="true"{% endif %}{% endfor %}>
                       <strong> </strong>{{ choice.text }}
                     </label>
                   </div>
@@ -50,13 +56,16 @@
 
                 <div class="panel-default">
                   {% if request.user.is_authenticated %}
-                  <button type="submit" id="vote-submit"
-                          class="btn btn-primary"
-                          {% if user_votes %}disabled{% endif %}>
-                    Vote
-                  </button>
-                {% else %}
-                  <div class="text-muted">You need to be logged in to vote for the polls. <a href="{% url 'login' %}">Click</a> to log in via Steemconnect.</div>
+                    <button type="submit" id="vote-submit"
+                            class="btn btn-primary"
+                            {% if user_votes %}disabled{% endif %}>
+                      Vote
+                    </button>
+                  {% else %}
+                    <div class="text-muted">You need to be logged in to vote for
+                      the polls. <a href="{% url 'login' %}">Click</a> to log in
+                      via Steemconnect.
+                    </div>
                   {% endif %}
                   {% if request.user.username == poll.username and poll.is_editable %}
                     <a id="vote-submit"
@@ -102,9 +111,49 @@
 
       </div>
     </div>
+    <div class="col-md-4">
+      <div>
+        <div class="user-poll-section">
 
-  </div>
+          <div class="panel panel-default">
 
+            <div class="panel-body" style="padding: 15px !important;">
+              <h5>Filter Results by voters</h5>
+              <form method="GET">
+                Minimum Reputation <span id="ex1_val">{% if request.GET.rep %}
+                {{ request.GET.rep }}{% else %}25{% endif %}</span><br/>
+                <input id="ex1" data-slider-id='ex1Slider' type="text"
+                       data-slider-min="0" data-slider-max="80"
+                       data-slider-step="1"
+                       data-slider-value="
+                           {% if request.GET.rep %}{{ request.GET.rep }}{% else %}25{% endif %}"
+                       name="rep"/>
+                <br/>
+                Minimum SP <br/>
+                <input type="text" name="sp"
+                       class="form-control form-control-sm"
+                       placeholder="100" value="{{ request.GET.sp }}">
+                Minimum account age (Days)<br/>
+                <input type="text" name="age" class="form-control"
+                       placeholder="365" value="{{ request.GET.age }}">
+
+
+                Minimum post count<br/>
+                <input type="text" name="post_count" placeholder="50"
+                       class="form-control"
+                       value="{{ request.GET.post_count }}">
+
+                <button type="submit" id="filter-submit"
+                        class="btn btn-primary" style="margin-top:10px;">Filter
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
   </div>
 
   {% for choice in choices %}
@@ -172,7 +221,7 @@
     </div>
   </div>
 
-    <div class="modal" tabindex="-1" role="dialog" id="promote-modal">
+  <div class="modal" tabindex="-1" role="dialog" id="promote-modal">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -184,21 +233,27 @@
         </div>
         <div class="modal-body">
           <div class="form-group">
-         <label for="promotion_amount" style="font-size:14px !important;">Amount in SBD</label>
+            <label for="promotion_amount" style="font-size:14px !important;">Amount
+              in SBD</label>
 
-          <input type="text" name="promotion_amount" id="promotion_amount" class="form-control" value="1">
+            <input type="text" name="promotion_amount" id="promotion_amount"
+                   class="form-control" value="1">
           </div>
           <h5>Note</h5>
 
           <p style="font-size:14px !important;">
             Promoted polls are listed on our
-            <a href="{% url 'index' %}?order=promoted">promoted page</a>. Additionaly, the highest amount spent
-            on a poll between active polls gives a winner spot on the <a href="{% url 'index' %}">homepage</a>.
+            <a href="{% url 'index' %}?order=promoted">promoted page</a>.
+            Additionaly, the highest amount spent
+            on a poll between active polls gives a winner spot on the <a
+              href="{% url 'index' %}">homepage</a>.
           </p>
 
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
 
           <button type="button" id="transfer"
                   class="btn btn-primary">Transfer
@@ -215,44 +270,54 @@
 {% block extra_js %}
   <script>
 
-    window.onload = function () {
-        $('#vote-submit').click(function (e) {
-            $('#vote-comment-modal').modal({
-                show: 'false'
-            });
-            e.preventDefault();
-        });
+      window.onload = function () {
+          $('#vote-submit').click(function (e) {
+              $('#vote-comment-modal').modal({
+                  show: 'false'
+              });
+              e.preventDefault();
+          });
 
-        $('#promote-submit').click(function (e) {
-            $('#promote-modal').modal({
-                show: 'false'
-            });
-            e.preventDefault();
-        });
+          $('#promote-submit').click(function (e) {
+              $('#promote-modal').modal({
+                  show: 'false'
+              });
+              e.preventDefault();
+          });
 
 
-        $('#additional-thoughts').click(function (e) {
-            var additionalThought = $('#additional-thought-vote').val();
-            if (additionalThought !== "") {
-                $('#vote-comment').val(additionalThought);
-            }
-            $('#vote-form').submit();
-        });
+          $('#additional-thoughts').click(function (e) {
+              var additionalThought = $('#additional-thought-vote').val();
+              if (additionalThought !== "") {
+                  $('#vote-comment').val(additionalThought);
+              }
+              $('#vote-form').submit();
+          });
 
-        $('#transfer').click(function (e) {
-            var memo = "https://dpoll.xyz/detail/@{{ poll.username }}/{{ poll.permlink }}/";
-            var amount = $('#promotion_amount').val();
-            var scUrl = "https://steemconnect.com/sign/transfer?to=dpoll.promotion&amount=" +
-                amount +
-                " SBD&memo=" +
-                memo +
-                "&redirect_uri=" + memo + "?after_promotion=1";
-            window.location.href = scUrl;
+          $('#transfer').click(function (e) {
+              var memo = "https://dpoll.xyz/detail/@{{ poll.username }}/{{ poll.permlink }}/";
+              var amount = $('#promotion_amount').val();
+              var scUrl = "https://steemconnect.com/sign/transfer?to=dpoll.promotion&amount=" +
+                  amount +
+                  " SBD&memo=" +
+                  memo +
+                  "&redirect_uri=" + memo + "?after_promotion=1";
+              window.location.href = scUrl;
 
-        });
+          });
 
-        $('table').addClass('table');
-    };
+          $('#ex1').slider({
+              formatter: function (value) {
+                  return value;
+              }
+          });
+
+          $("#ex1").on("slide", function (slideEvt) {
+              $("#ex1_val").text(slideEvt.value);
+          });
+
+          $('table').addClass('table');
+      };
 
   </script>
 

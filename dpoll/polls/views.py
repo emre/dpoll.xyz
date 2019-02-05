@@ -21,7 +21,7 @@ from .models import Question, Choice, User, VoteAudit
 from .utils import (
     get_sc_client, get_comment_options, get_top_dpollers,
     get_top_voters, validate_input, add_or_get_question, add_choices,
-    get_comment, fetch_poll_data)
+    get_comment, fetch_poll_data, sanitize_filter_value)
 
 TEAM_MEMBERS  = [
         {
@@ -305,14 +305,29 @@ def detail(request, user, permlink):
     except Question.DoesNotExist:
         raise Http404
 
+    rep = sanitize_filter_value(request.GET.get("rep"))
+    sp = sanitize_filter_value(request.GET.get("sp"))
+    age = sanitize_filter_value(request.GET.get("age"))
+    post_count = sanitize_filter_value(request.GET.get("post_count"))
+    needs_filtering = bool(rep or sp or age or post_count)
+
     choices = list(Choice.objects.filter(question=poll))
-    all_votes = sum([c.votes for c in choices])
+
+    if needs_filtering:
+        all_votes = sum(
+            [c.filtered_vote_count(rep, age, post_count, sp) for c in choices])
+    else:
+        all_votes = sum([c.votes for c in choices])
     choice_list = []
     selected_different_choices = 0
     for choice in choices:
         choice_data = choice
         if choice.votes:
-            choice_data.percent = round(100 * choice.votes / all_votes, 2)
+            if needs_filtering:
+                choice_data.percent = choice.filtered_vote_count(
+                    rep, age, post_count, sp)
+            else:
+                choice_data.percent = round(100 * choice.votes / all_votes, 2)
             selected_different_choices += 1
         else:
             choice_data.percent = 0
