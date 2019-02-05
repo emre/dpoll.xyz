@@ -13,12 +13,12 @@
           <span class="pull-right"><a id="promote-submit"
                                       style="margin: 5px;"
                                       href="#">
-             <strong>Promote</strong></a> - &nbsp;
-        <a
-            href="https://steemit.com/@{{ poll.username }}/{{ poll.permlink }}">View
-          in Steemit</a>
+             <strong>Promote</strong></a> -
+        <a href="https://steemit.com/@{{ poll.username }}/{{ poll.permlink }}">View
+          in Steemit</a> - <a
+                href="/detail/@{{ poll.username }}/{{ poll.permlink }}/?audit=1">Audit</a>
            </span>
-          </a>
+
         </h6>
 
 
@@ -143,8 +143,11 @@
                         class="btn btn-primary" style="margin-top:10px;">Filter
                 </button>
 
-                  {% if filters_applied %}<a href="/detail/@{{ poll.username }}/{{ poll.permlink }}/"  class="btn btn-primary" style="margin-top:10px;">Clear Filters
-                </a>{% endif %}
+                {% if filters_applied %}
+                  <a href="/detail/@{{ poll.username }}/{{ poll.permlink }}/"
+                     class="btn btn-primary" style="margin-top:10px;">Clear
+                    Filters
+                  </a>{% endif %}
               </form>
             </div>
           </div>

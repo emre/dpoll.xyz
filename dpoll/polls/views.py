@@ -15,6 +15,7 @@ from django.shortcuts import render, redirect
 from django.utils.timezone import now
 from steemconnect.client import Client
 from steemconnect.operations import Comment
+from prettytable import PrettyTable
 
 from base.utils import add_tz_info
 from .models import Question, Choice, User, VoteAudit
@@ -346,6 +347,28 @@ def detail(request, user, permlink):
         voted_users__username=request.user.username,
         question=poll,
     ).values_list('id', flat=True)
+
+    if 'audit' in request.GET:
+        # Return a .xls file includes blockchain references and votes
+        data = PrettyTable()
+        data.field_names = ["Choice", "Voter", "Transaction ID", "Block num"]
+        for choice in sorted_choice_list:
+            for user in choice.voters:
+                try:
+                    audit = VoteAudit.objects.get(
+                        question=poll,
+                        voter=user,
+                    )
+                    data.add_row(
+                        [choice.text, user.username,
+                         audit.trx_id, audit.block_id]
+                    )
+                except VoteAudit.DoesNotExist:
+                    data.add_row(
+                        [choice.text, user.username, 'missing', 'missing']
+                    )
+
+        return HttpResponse(data)
 
     return render(request, "poll_detail.html", {
         "poll": poll,
