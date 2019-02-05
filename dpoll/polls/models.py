@@ -111,6 +111,38 @@ class Choice(models.Model):
     def votes(self):
         return self.voted_users.all().count()
 
+    def filtered_vote_count(self, rep, account_age, post_count, sp):
+        filtered_user_count = 0
+        for user in self.voted_users.all():
+            if rep:
+                try:
+                    rep = int(rep)
+                    if user.reputation < rep:
+                        continue
+                except ValueError:
+                    pass
+
+            if account_age:
+                try:
+                    account_age = int(account_age)
+                    if user.account_age < account_age:
+                        continue
+                except ValueError:
+                    pass
+            if post_count:
+                if isinstance(post_count, int):
+                    if user.post_count < post_count:
+                        continue
+            if sp:
+                try:
+                    if user.sp < int(sp):
+                        continue
+                except ValueError:
+                    pass
+            filtered_user_count += 1
+
+        return filtered_user_count
+
     def __str__(self):
         return self.text
 

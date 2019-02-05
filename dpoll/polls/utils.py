@@ -265,3 +265,12 @@ def fetch_poll_data(author, permlink):
         "tags": metadata.get("tags"),
         "votes_casted": votes_casted,
     }
+
+
+def sanitize_filter_value(val):
+    if not val:
+        return
+    try:
+        return int(val)
+    except ValueError:
+        return

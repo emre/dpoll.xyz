@@ -18,6 +18,7 @@
       rel="stylesheet"
       integrity="sha384-Tfj13fqQQqqzQFuaZ81WDzmmOU610WeS08VMuHmElK5oI2f7NwojuL6VupYXR/jK"
       crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.6.0/css/bootstrap-slider.min.css" />
   <style>
     div {
       font-size: 16px;
@@ -34,19 +35,29 @@
       height: 20px;
     }
 
-    .user-poll-section .panel {
-      border-radius: 12px;
-      -webkit-border-radius: 12px;
-      -moz-border-radius: 12px;
+    .user-poll-section {
+      display: inline;
     }
 
-    .widget .panel-body {
-      padding: 0px;
+
+    .user-poll-section .panel {
+      border-radius: 8px;
+      -webkit-border-radius: 8px;
+      -moz-border-radius: 8px;
+    }
+
+    .panel-body {
+      font-size: 14px;
+      padding: 0;
     }
 
     .widget .list-group {
       margin-bottom: 0;
       word-wrap: break-word;
+    }
+
+    div {
+      font-size: 14px;
     }
 
     .widget .panel-title {
@@ -60,12 +71,8 @@
     .widget li.list-group-item {
       border-radius: 0;
       border: 0;
-      border-top: 1px solid #ddd;
     }
 
-    .widget li.list-group-item:hover {
-      background-color: rgba(86, 61, 124, .1);
-    }
 
     .widget .mic-info {
       color: #666666;
@@ -241,6 +248,8 @@
     src="https://stackpath.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"
     integrity="sha384-4Kp4aQ6UNeqsJ/ithPcxYnnIGt/QJJ64J9QtfDAJZUTaePAIPm9aaBdu7Gw84oGs"
     crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.6.0/bootstrap-slider.min.js"></script>
+
 </body>
 {% block extra_js %} {% endblock %}
 
