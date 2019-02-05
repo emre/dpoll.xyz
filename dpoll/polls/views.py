@@ -353,20 +353,21 @@ def detail(request, user, permlink):
         data = PrettyTable()
         data.field_names = ["Choice", "Voter", "Transaction ID", "Block num"]
         for choice in sorted_choice_list:
-            for user in choice.voters:
-                try:
-                    audit = VoteAudit.objects.get(
-                        question=poll,
-                        voter=user,
-                    )
-                    data.add_row(
-                        [choice.text, user.username,
-                         audit.trx_id, audit.block_id]
-                    )
-                except VoteAudit.DoesNotExist:
-                    data.add_row(
-                        [choice.text, user.username, 'missing', 'missing']
-                    )
+            if hasattr(choice, 'voters'):
+                for user in choice.voters:
+                    try:
+                        audit = VoteAudit.objects.get(
+                            question=poll,
+                            voter=user,
+                        )
+                        data.add_row(
+                            [choice.text, user.username,
+                             audit.trx_id, audit.block_id]
+                        )
+                    except VoteAudit.DoesNotExist:
+                        data.add_row(
+                            [choice.text, user.username, 'missing', 'missing']
+                        )
 
         return HttpResponse(data)
 
