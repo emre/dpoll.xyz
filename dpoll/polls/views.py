@@ -324,14 +324,16 @@ def detail(request, user, permlink):
         choice_data = choice
         if choice.votes:
             if needs_filtering:
-                choice_data.percent = round(100 * choice.filtered_vote_count(
-                    rep, age, post_count, sp) / all_votes, 2)
+                choice.vote_count = choice.filtered_vote_count(
+                    rep, age, post_count, sp)
             else:
-                choice_data.percent = round(100 * choice.votes / all_votes, 2)
+                choice.vote_count = choice.votes
+                choice_data.percent = round(100 * choice.vote_count / all_votes, 2)
             selected_different_choices += 1
         else:
             choice_data.percent = 0
         choice_list.append(choice_data)
+
     sorted_choice_list = copy.deepcopy(choice_list)
     sorted_choice_list.sort(key=lambda x: x.percent, reverse=True)
 
