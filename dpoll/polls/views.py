@@ -353,7 +353,8 @@ def detail(request, user, permlink):
         "total_votes": all_votes,
         "user_votes": user_votes,
         "all_votes": all_votes,
-        "show_bars": selected_different_choices > 1
+        "show_bars": selected_different_choices > 1,
+        "filters_applied": needs_filtering,
     })
 
 
