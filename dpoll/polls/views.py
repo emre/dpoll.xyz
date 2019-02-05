@@ -369,7 +369,7 @@ def detail(request, user, permlink):
                             [choice.text, user.username, 'missing', 'missing']
                         )
 
-        return HttpResponse(data)
+        return HttpResponse(f"<pre>{data}</pre>")
 
     return render(request, "poll_detail.html", {
         "poll": poll,
