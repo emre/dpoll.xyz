@@ -6,6 +6,13 @@ from django.urls import reverse
 
 class User(AbstractUser):
 
+    reputation = models.DecimalField(
+        max_digits=6, decimal_places=4, blank=True, null=True)
+    post_count = models.IntegerField(blank=True, null=True)
+    sp = models.DecimalField(max_digits=64, decimal_places=4, blank=True,
+                             null=True)
+    account_age = models.IntegerField(blank=True, null=True)
+
     @property
     def polls_created(self):
         return Question.objects.filter(
