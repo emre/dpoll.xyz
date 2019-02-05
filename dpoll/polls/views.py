@@ -390,7 +390,6 @@ def vote(request, user, permlink):
     choice_instances = []
     for choice_id in choice_ids:
         choice = Choice.objects.get(pk=int(choice_id))
-        choice.voted_users.add(request.user)
         choice_instances.append(choice)
 
     # send it to the steem blockchain
@@ -422,16 +421,29 @@ def vote(request, user, permlink):
             comment_options.to_operation_structure(),
         ])
 
+    # Steemconnect sometimes returns 503.
+    # https://github.com/steemscript/steemconnect/issues/356
+    if not isinstance(resp, dict):
+        messages.add_message(
+            request,
+            messages.ERROR,
+            "We got an unexpected error from Steemconnect. Please, try again."
+        )
+        return redirect("detail", poll.username, poll.permlink)
+
+    # Expected way to receive errors on broadcasting
     if 'error' in resp:
         messages.add_message(
             request,
             messages.ERROR,
             resp.get("error_description", "error")
         )
-        for choice in choice_instances:
-            choice.voted_users.remove(request.user)
 
         return redirect("detail", poll.username, poll.permlink)
+
+    # register the vote to the database
+    for choice_instance in choice_instances:
+        choice_instance.voted_users.add(request.user)
 
     messages.add_message(
         request,
