@@ -1,8 +1,15 @@
-from django.db import models
-from django.utils import timezone
-from django.contrib.auth.models import AbstractUser
-from django.urls import reverse
+import threading
+import pytz
 
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+from django.urls import reverse
+from django.utils import timezone
+
+from lightsteem.client import Client
+from lightsteem.helpers.amount import Amount
+from lightsteem.helpers.account import Account
+from dateutil.parser import parse
 
 class User(AbstractUser):
 
@@ -43,6 +50,52 @@ class User(AbstractUser):
     def profile_url(self):
         return reverse('profile', args=[self.username])
 
+    def update_info(self, steem_per_mvest=None, account_detail=None):
+        c = Client()
+
+        if not steem_per_mvest:
+            # get chain properties
+            dygp = c.get_dynamic_global_properties()
+            steem_per_mvest =  (
+                    float(Amount(dygp["total_vesting_fund_steem"]).amount) /
+                    (float(Amount(dygp["total_vesting_shares"]).amount) / 1e6))
+
+        # get account detail
+        if not account_detail:
+            account_detail = c.get_accounts([self.username])[0]
+        vests = float(Amount(account_detail["vesting_shares"]))
+
+        # calculate account age
+        t = parse(account_detail["created"])
+        if t.tzinfo is None:
+            utc_time = pytz.timezone('UTC')
+            t = utc_time.localize(t)
+
+        # account reputation
+        acc = Account(c)
+        acc.raw_data = account_detail
+
+        self.reputation = acc.reputation(precision=4)
+        self.sp = vests / 1e6 * steem_per_mvest
+        self.account_age = (timezone.now() - t).total_seconds() / 86400
+        self.post_count = account_detail["post_count"]
+        self.save()
+
+        return self
+
+    def update_info_async(self, steem_per_mvest=None, account_detail=None):
+        t = threading.Thread(
+            target=self.update_info,
+            kwargs={
+                "steem_per_mvest": steem_per_mvest,
+                "account_detail": account_detail,
+            }
+        )
+        t.start()
+
+
+def vests_to_sp(steem_per_mvest, vests):
+    return vests / 1e6 * steem_per_mvest
 
 class Question(models.Model):
     text = models.CharField(max_length=255)
