@@ -249,7 +249,7 @@ class Choice(models.Model):
             try:
                 filter_val = int(filter_val)
                 query_params.update({
-                    f"choice__voted_users__{filter_key}__gt": filter_val,
+                    f"choice__voted_users__{filter_key}__gte": filter_val,
                 })
             except ValueError:
                 continue
