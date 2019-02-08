@@ -1,15 +1,17 @@
 import threading
-import pytz
 
+import pytz
+from dateutil.parser import parse
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
-
 from lightsteem.client import Client
-from lightsteem.helpers.amount import Amount
 from lightsteem.helpers.account import Account
-from dateutil.parser import parse
+from lightsteem.helpers.amount import Amount
+from prettytable import PrettyTable
+
 
 class User(AbstractUser):
 
@@ -153,6 +155,69 @@ class Question(models.Model):
         self.voter_count = len(list(set(voters)))
         return self
 
+    def votes_summary(self, age=None, rep=None, post_count=None, sp=None):
+        filter_exists = bool(rep or sp or age or post_count)
+        choices = list(self.choices.all())
+
+        # Calculate vote count
+        # if the query includes filters, then exclude the non-eligible votes.
+        if filter_exists:
+            all_votes = sum(
+                [c.filtered_vote_count(rep, age, post_count, sp) for c in
+                 choices])
+        else:
+            all_votes = sum([c.votes for c in choices])
+        choice_list = []
+        choices_selected = 0
+        for choice in choices:
+            # Inject vote_count and voters to each choice
+            choice_data = choice
+            if choice.votes:
+                if filter_exists:
+                    choice_data.vote_count, choice_data.voters = choice.\
+                        filtered_vote_count(
+                        rep, age, post_count, sp, return_users=True)
+                    if choice_data.vote_count == 0:
+                        choice_data.percent = 0
+                    else:
+                        choice_data.percent = round(
+                            100 * choice_data.vote_count / all_votes, 2)
+                else:
+                    choice_data.vote_count = choice.votes
+                    choice_data.percent = round(
+                        100 * choice_data.vote_count / all_votes, 2)
+                    choice_data.voters = choice.voted_users.all()
+                    choices_selected += 1
+            else:
+                choice_data.percent = 0
+            choice_list.append(choice_data)
+
+        choice_list.sort(key=lambda x: x.percent, reverse=True)
+        return choice_list, choices_selected, filter_exists, all_votes
+
+
+    def audit_response(self, choice_list):
+        # Return a .xls file includes blockchain references and votes
+        data = PrettyTable()
+        data.field_names = ["Choice", "Voter", "Transaction ID", "Block num"]
+        for choice in choice_list:
+            if hasattr(choice, 'voters'):
+                for user in choice.voters:
+                    try:
+                        audit = VoteAudit.objects.get(
+                            question=self,
+                            voter=user,
+                        )
+                        data.add_row(
+                            [choice.text, user.username,
+                             audit.trx_id, audit.block_id]
+                        )
+                    except VoteAudit.DoesNotExist:
+                        data.add_row(
+                            [choice.text, user.username, 'missing', 'missing']
+                        )
+
+        return HttpResponse(f"<pre>{data}</pre>")
 
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE,

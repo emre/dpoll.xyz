@@ -15,7 +15,6 @@ from django.shortcuts import render, redirect
 from django.utils.timezone import now
 from steemconnect.client import Client
 from steemconnect.operations import Comment
-from prettytable import PrettyTable
 
 from base.utils import add_tz_info
 from .models import Question, Choice, User, VoteAudit
@@ -311,38 +310,15 @@ def detail(request, user, permlink):
     sp = sanitize_filter_value(request.GET.get("sp"))
     age = sanitize_filter_value(request.GET.get("age"))
     post_count = sanitize_filter_value(request.GET.get("post_count"))
-    needs_filtering = bool(rep or sp or age or post_count)
 
-    choices = list(Choice.objects.filter(question=poll))
 
-    if needs_filtering:
-        all_votes = sum(
-            [c.filtered_vote_count(rep, age, post_count, sp) for c in choices])
-    else:
-        all_votes = sum([c.votes for c in choices])
-    choice_list = []
-    selected_different_choices = 0
-    for choice in choices:
-        choice_data = choice
-        if choice.votes:
-            if needs_filtering:
-                choice_data.vote_count, choice_data.voters = choice.filtered_vote_count(
-                    rep, age, post_count, sp, return_users=True)
-                if choice_data.vote_count == 0:
-                    choice_data.percent = 0
-                else:
-                    choice_data.percent = round(100 * choice_data.vote_count / all_votes, 2)
-            else:
-                choice_data.vote_count = choice.votes
-                choice_data.percent = round(100 * choice_data.vote_count / all_votes, 2)
-                choice_data.voters = choice.voted_users.all()
-            selected_different_choices += 1
-        else:
-            choice_data.percent = 0
-        choice_list.append(choice_data)
-
-    sorted_choice_list = copy.deepcopy(choice_list)
-    sorted_choice_list.sort(key=lambda x: x.percent, reverse=True)
+    choice_list, choices_selected, filter_exists, all_votes = \
+            poll.votes_summary(
+        age=age,
+        rep=rep,
+        sp=sp,
+        post_count=post_count,
+    )
 
     user_votes = Choice.objects.filter(
         voted_users__username=request.user.username,
@@ -350,37 +326,16 @@ def detail(request, user, permlink):
     ).values_list('id', flat=True)
 
     if 'audit' in request.GET:
-        # Return a .xls file includes blockchain references and votes
-        data = PrettyTable()
-        data.field_names = ["Choice", "Voter", "Transaction ID", "Block num"]
-        for choice in sorted_choice_list:
-            if hasattr(choice, 'voters'):
-                for user in choice.voters:
-                    try:
-                        audit = VoteAudit.objects.get(
-                            question=poll,
-                            voter=user,
-                        )
-                        data.add_row(
-                            [choice.text, user.username,
-                             audit.trx_id, audit.block_id]
-                        )
-                    except VoteAudit.DoesNotExist:
-                        data.add_row(
-                            [choice.text, user.username, 'missing', 'missing']
-                        )
-
-        return HttpResponse(f"<pre>{data}</pre>")
+        return poll.audit_response(choice_list)
 
     return render(request, "poll_detail.html", {
         "poll": poll,
         "choices": choice_list,
-        "sorted_choices": sorted_choice_list,
+        "sorted_choices": choice_list,
         "total_votes": all_votes,
         "user_votes": user_votes,
-        "all_votes": all_votes,
-        "show_bars": selected_different_choices > 1,
-        "filters_applied": needs_filtering,
+        "show_bars": choices_selected > 1,
+        "filters_applied": filter_exists,
     })
 
 
