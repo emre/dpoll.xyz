@@ -1,5 +1,5 @@
 import threading
-
+import copy
 import pytz
 from dateutil.parser import parse
 from django.contrib.auth.models import AbstractUser
@@ -191,9 +191,10 @@ class Question(models.Model):
             else:
                 choice_data.percent = 0
             choice_list.append(choice_data)
-
+        choice_list_ordered = copy.deepcopy(choice_list)
         choice_list.sort(key=lambda x: x.percent, reverse=True)
-        return choice_list, choices_selected, filter_exists, all_votes
+        return choice_list, choice_list_ordered, choices_selected,\
+               filter_exists, all_votes
 
 
     def audit_response(self, choice_list):

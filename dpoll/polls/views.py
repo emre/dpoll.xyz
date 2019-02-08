@@ -312,13 +312,13 @@ def detail(request, user, permlink):
     post_count = sanitize_filter_value(request.GET.get("post_count"))
 
 
-    choice_list, choices_selected, filter_exists, all_votes = \
-            poll.votes_summary(
-        age=age,
-        rep=rep,
-        sp=sp,
-        post_count=post_count,
-    )
+    choice_list, choice_list_ordered, choices_selected, filter_exists, \
+            all_votes = poll.votes_summary(
+                age=age,
+                rep=rep,
+                sp=sp,
+                post_count=post_count,
+            )
 
     user_votes = Choice.objects.filter(
         voted_users__username=request.user.username,
@@ -331,6 +331,7 @@ def detail(request, user, permlink):
     return render(request, "poll_detail.html", {
         "poll": poll,
         "choices": choice_list,
+        "choices_ordered": choice_list_ordered,
         "total_votes": all_votes,
         "user_votes": user_votes,
         "show_bars": choices_selected > 1,

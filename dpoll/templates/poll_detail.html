@@ -38,7 +38,7 @@
                   {{ poll.description |striptags | force_escape | markdown |safe }}
                 </p>
                 <input type="hidden" id="vote-comment" name="vote-comment">
-                {% for choice in choices %}
+                {% for choice in choices_ordered %}
                   <div class="radio">
                     <label>
                       <input
