@@ -240,6 +240,7 @@ class Choice(models.Model):
         }
         query_params = {
             "choice__question": self.question,
+            "choice": self,
         }
         filter_keys = ["reputation", "account_age", "sp", "post_count"]
         for filter_key in filter_keys:
