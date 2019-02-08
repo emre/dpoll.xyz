@@ -257,7 +257,6 @@ class Choice(models.Model):
         print(query_params)
         query_set = self.voted_users.filter(**query_params)
         if return_users:
-
             return query_set.count(), query_set
         return query_set.count()
 

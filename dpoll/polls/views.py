@@ -331,7 +331,6 @@ def detail(request, user, permlink):
     return render(request, "poll_detail.html", {
         "poll": poll,
         "choices": choice_list,
-        "sorted_choices": choice_list,
         "total_votes": all_votes,
         "user_votes": user_votes,
         "show_bars": choices_selected > 1,
