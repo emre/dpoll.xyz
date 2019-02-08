@@ -238,7 +238,9 @@ class Choice(models.Model):
             "post_count": post_count,
             "sp": sp,
         }
-        query_params = {}
+        query_params = {
+            "choice__question": self.question,
+        }
         filter_keys = ["reputation", "account_age", "sp", "post_count"]
         for filter_key in filter_keys:
             filter_val = filter_key_map[filter_key]
@@ -252,7 +254,7 @@ class Choice(models.Model):
             except ValueError:
                 continue
 
-        # self.voted_users.filter(choice__voted_users__)
+        print(query_params)
         query_set = self.voted_users.filter(**query_params)
         if return_users:
 
