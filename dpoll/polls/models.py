@@ -166,40 +166,33 @@ class Choice(models.Model):
 
     def filtered_vote_count(self, rep, account_age, post_count, sp,
                             return_users=False):
-        filtered_user_count = 0
-        filtered_users = []
-        for user in self.voted_users.all():
-            if rep:
-                try:
-                    rep = int(rep)
-                    if user.reputation < rep:
-                        continue
-                except ValueError:
-                    pass
 
-            if account_age:
-                try:
-                    account_age = int(account_age)
-                    if user.account_age < account_age:
-                        continue
-                except ValueError:
-                    pass
-            if post_count:
-                if isinstance(post_count, int):
-                    if user.post_count < post_count:
-                        continue
-            if sp:
-                try:
-                    if user.sp < int(sp):
-                        continue
-                except ValueError:
-                    pass
-            filtered_user_count += 1
-            filtered_users.append(user)
+        filter_key_map = {
+            "reputation": rep,
+            "account_age": account_age,
+            "post_count": post_count,
+            "sp": sp,
+        }
+        query_params = {}
+        filter_keys = ["reputation", "account_age", "sp", "post_count"]
+        for filter_key in filter_keys:
+            filter_val = filter_key_map[filter_key]
+            if not filter_val:
+                continue
+            try:
+                filter_val = int(filter_val)
+                query_params.update({
+                    f"choice__voted_users__{filter_key}__gt": filter_val,
+                })
+            except ValueError:
+                continue
 
+        # self.voted_users.filter(choice__voted_users__)
+        query_set = self.voted_users.filter(**query_params)
         if return_users:
-            return filtered_user_count, filtered_users
-        return filtered_user_count
+
+            return query_set.count(), query_set
+        return query_set.count()
 
     def __str__(self):
         return self.text
