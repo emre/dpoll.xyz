@@ -298,7 +298,8 @@ def detail(request, user, permlink):
         messages.add_message(
             request,
             messages.SUCCESS,
-            "Thanks for the promotion. Transfer will be picked up by our systems between 2 and 5 minutes."
+            "Thanks for the promotion. Transfer will be picked up by our "
+            "systems between 2 and 5 minutes."
         )
 
     try:
