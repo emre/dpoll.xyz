@@ -89,7 +89,7 @@
                     <span class="pull-right"> <a
                         data-toggle="modal"
                         data-target="#voter-list-{{ choice.id }}">
-                                                     {{ choice.vote_count }} / {{ total_votes }}
+                                                     {{ choice.vote_count|floatformat:0  }} {% if request.GET.stake_based == "1" %}SP{% endif %} / {{ total_votes|floatformat:0  }} {% if request.GET.stake_based == "1" %}SP{% endif %}
                       </a></span>
                   </small>
                   <div class="progress progress-striped active">
@@ -121,6 +121,7 @@
               <h5>Filter Results by voters</h5>
               <form method="GET">
                 Minimum Reputation<br/>
+                <input type="hidden" name="stake_based" value="{{ request.GET.stake_based }}"/>
                 <input type="text"
                        class="form-control"
                        value="{% if request.GET.rep %}{{ request.GET.rep }}{% else %}25{% endif %}"
