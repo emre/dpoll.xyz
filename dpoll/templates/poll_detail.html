@@ -176,6 +176,7 @@
               <thead>
               <tr>
                 <th scope="col">Account</th>
+                <th scope="col">SP</th>
               </tr>
               </thead>
               <tbody>
@@ -184,6 +185,10 @@
                   <td><a
                       href="{% url 'profile' user.username %}">@{{ user.username }}</a>
                   </td>
+                 <td>
+                      {{ user.sp|floatformat:0 }}
+                  </td>
+
                 </tr>
               {% endfor %}
               </tbody>

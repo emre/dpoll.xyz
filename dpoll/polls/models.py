@@ -235,7 +235,7 @@ class Choice(models.Model):
         filtered_user_count = 0
         filtered_users = []
         total_stake_in_sp = 0
-        for user in self.voted_users.all():
+        for user in self.voted_users.all().order_by("-sp"):
             if rep:
                 try:
                     rep = int(rep)
@@ -290,7 +290,7 @@ class Choice(models.Model):
                 self.vote_count = self.votes
             self.percent = round(
                 100 * self.vote_count / all_votes, 2)
-            self.voters = self.voted_users.all()
+            self.voters = self.voted_users.all().order_by("-sp")
 
         return self
 
