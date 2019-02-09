@@ -165,7 +165,7 @@ class Question(models.Model):
         if filter_exists:
             all_votes = sum(
                 [c.filtered_vote_count(
-                    rep, age, post_count, sp, stake_based=True) for c in
+                    rep, age, post_count, sp, stake_based=stake_based) for c in
                  choices])
         else:
             if stake_based:
@@ -265,7 +265,7 @@ class Choice(models.Model):
             total_stake_in_sp += user.sp
             filtered_users.append(user)
 
-        returned_data = total_stake_in_sp if stake_based else \
+        returned_data = int(total_stake_in_sp) if stake_based else \
             filtered_user_count
         if return_users:
             return returned_data, filtered_users
