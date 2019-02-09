@@ -155,7 +155,8 @@ class Question(models.Model):
         self.voter_count = len(list(set(voters)))
         return self
 
-    def votes_summary(self, age=None, rep=None, post_count=None, sp=None):
+    def votes_summary(self, age=None, rep=None, post_count=None, sp=None,
+                      stake_based=False):
         filter_exists = bool(rep or sp or age or post_count)
         choices = list(self.choices.all())
 
@@ -163,31 +164,28 @@ class Question(models.Model):
         # if the query includes filters, then exclude the non-eligible votes.
         if filter_exists:
             all_votes = sum(
-                [c.filtered_vote_count(rep, age, post_count, sp) for c in
+                [c.filtered_vote_count(
+                    rep, age, post_count, sp, stake_based=True) for c in
                  choices])
         else:
-            all_votes = sum([c.votes for c in choices])
+            if stake_based:
+                # @todo: fetch this from SQL query, directly.
+                all_votes = 0
+                for c in choices:
+                    for u in c.voted_users.all():
+                        all_votes += u.sp
+            else:
+                all_votes = sum([c.votes for c in choices])
         choice_list = []
         choices_selected = 0
         for choice in choices:
-            # Inject vote_count and voters to each choice
             choice_data = choice
             if choice.votes:
-                if filter_exists:
-                    choice_data.vote_count, choice_data.voters = choice.\
-                        filtered_vote_count(
-                        rep, age, post_count, sp, return_users=True)
-                    if choice_data.vote_count == 0:
-                        choice_data.percent = 0
-                    else:
-                        choice_data.percent = round(
-                            100 * choice_data.vote_count / all_votes, 2)
-                else:
-                    choice_data.vote_count = choice.votes
-                    choice_data.percent = round(
-                        100 * choice_data.vote_count / all_votes, 2)
-                    choice_data.voters = choice.voted_users.all()
-                    choices_selected += 1
+                choice_data = choice_data.inject_stats(
+                    filter_exists, rep, age, post_count, sp, all_votes,
+                    stake_based=stake_based,
+                )
+                choices_selected += 1
             else:
                 choice_data.percent = 0
             choice_list.append(choice_data)
@@ -220,6 +218,7 @@ class Question(models.Model):
 
         return HttpResponse(f"<pre>{data}</pre>")
 
+
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE,
                                  related_name="choices")
@@ -231,10 +230,11 @@ class Choice(models.Model):
         return self.voted_users.all().count()
 
     def filtered_vote_count(self, rep, account_age, post_count, sp,
-                            return_users=False):
+                            return_users=False, stake_based=False):
 
         filtered_user_count = 0
         filtered_users = []
+        total_stake_in_sp = 0
         for user in self.voted_users.all():
             if rep:
                 try:
@@ -262,11 +262,34 @@ class Choice(models.Model):
                 except ValueError:
                     pass
             filtered_user_count += 1
+            total_stake_in_sp += user.sp
             filtered_users.append(user)
 
+        returned_data = total_stake_in_sp if stake_based else \
+            filtered_user_count
         if return_users:
-            return filtered_user_count, filtered_users
-        return filtered_user_count
+            return returned_data, filtered_users
+        return returned_data
+
+    def inject_stats(self, filter_exists, rep, age, post_count, sp, all_votes,
+                     stake_based=False):
+        if filter_exists:
+            self.vote_count, self.voters = self. \
+                filtered_vote_count(
+                rep, age, post_count, sp, return_users=True,
+                stake_based=stake_based)
+            if self.vote_count == 0:
+                self.percent = 0
+            else:
+                self.percent = round(
+                    100 * self.vote_count / all_votes, 2)
+        else:
+            self.vote_count = sum([u.sp for u in self.voted_users.all()])
+            self.percent = round(
+                100 * self.vote_count / all_votes, 2)
+            self.voters = self.voted_users.all()
+
+        return self
 
     def __str__(self):
         return self.text
