@@ -163,10 +163,10 @@ class Question(models.Model):
         # Calculate vote count
         # if the query includes filters, then exclude the non-eligible votes.
         if filter_exists:
-            all_votes = sum(
+            all_votes = int(sum(
                 [c.filtered_vote_count(
                     rep, age, post_count, sp, stake_based=stake_based) for c in
-                 choices])
+                 choices]))
         else:
             if stake_based:
                 # @todo: fetch this from SQL query, directly.
