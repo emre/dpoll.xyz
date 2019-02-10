@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load markdown_extras %}
+{% load numbers %}
 {% block content %}
 
   <div class="container">
@@ -89,7 +90,7 @@
                     <span class="pull-right"> <a
                         data-toggle="modal"
                         data-target="#voter-list-{{ choice.id }}">
-       {{ choice.vote_count|floatformat:0  }} {% if request.GET.stake_based == "1" %}SP{% endif %} / {{ total_votes|floatformat:0  }} {% if request.GET.stake_based == "1" %}SP  ({{ choice.votes }} Voters){% endif %}
+       {{ choice.vote_count|cool_number }} {% if request.GET.stake_based == "1" %}SP{% endif %} / {{ total_votes|cool_number  }} {% if request.GET.stake_based == "1" %}SP  ({{ choice.votes }} Voters){% endif %}
                       </a></span>
                   </small>
                   <div class="progress progress-striped active">
@@ -198,7 +199,7 @@
                       href="{% url 'profile' user.username %}">@{{ user.username }}</a>
                   </td>
                  <td>
-                      {{ user.sp|floatformat:0 }}
+                      {{ user.sp|cool_number  }}
                   </td>
 
                 </tr>
