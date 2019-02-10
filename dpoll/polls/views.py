@@ -318,7 +318,7 @@ def detail(request, user, permlink):
                 rep=rep,
                 sp=sp,
                 post_count=post_count,
-                stake_based='stake_based' in request.GET,
+                stake_based=request.GET.get("stake_based") == "1",
             )
 
     user_votes = Choice.objects.filter(
