@@ -119,7 +119,7 @@
           <div class="panel panel-default">
 
             <div class="panel-body" style="padding: 15px !important;">
-              <h5>Filter Results by voters</h5>
+              <h4>Available Filters</h4>
               <form method="GET">
                 Minimum Reputation<br/>
                 <input type="text"
@@ -145,11 +145,11 @@
                       name="stake_based">
                 <option value="0"
                         {% if request.GET.stake_based == "0" %}selected="selected"{% endif %}>
-                  Account Based Results
+                  Account Based Voting
                 </option>
                 <option value="1"
                         {% if request.GET.stake_based == "1" %}selected="selected"{% endif %}>
-                  Stake Based Results
+                  Stake Based Voting
                 </option>
               </select>
                 <button type="submit" id="filter-submit"
