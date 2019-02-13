@@ -255,8 +255,11 @@ def fetch_poll_data(author, permlink):
         if not comment.get("json_metadata"):
             continue
         json_metadata = json.loads(comment.get("json_metadata"))
-        if json_metadata and json_metadata.get("content_type") == "poll_vote":
-            votes_casted = True
+        try:
+            if json_metadata and json_metadata.get("content_type") == "poll_vote":
+                votes_casted = True
+        except AttributeError:
+            continue
 
     return {
         "question": metadata.get("question"),
