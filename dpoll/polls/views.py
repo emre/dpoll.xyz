@@ -360,6 +360,10 @@ def vote(request, user, permlink):
         choice_ids = request.POST.getlist("choice-id")
     else:
         choice_ids = [request.POST.get("choice-id"),]
+
+    # remove noise
+    choice_ids = [x for x in choice_ids if x is not None]
+
     additional_thoughts = request.POST.get("vote-comment", "")
 
     if not len(choice_ids):
