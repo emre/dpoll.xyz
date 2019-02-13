@@ -362,7 +362,7 @@ def vote(request, user, permlink):
         choice_ids = [request.POST.get("choice-id"),]
     additional_thoughts = request.POST.get("vote-comment", "")
 
-    if not choice_ids:
+    if not len(choice_ids):
         messages.add_message(
             request,
             messages.ERROR,
