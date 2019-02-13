@@ -363,7 +363,12 @@ def vote(request, user, permlink):
     additional_thoughts = request.POST.get("vote-comment", "")
 
     if not choice_ids:
-        raise Http404
+        messages.add_message(
+            request,
+            messages.ERROR,
+            "You need to pick a choice to vote."
+        )
+        return redirect("detail", poll.username, poll.permlink)
 
     if Choice.objects.filter(
             voted_users__username=request.user,
