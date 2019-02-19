@@ -173,11 +173,11 @@ def validate_input(request):
             f"At least 2 answers are required."
         )
         error = True
-    elif len(choices) > 20:
+    elif len(choices) > 64:
         messages.add_message(
             request,
             messages.ERROR,
-            f"Maximum number of answers is 20."
+            f"Maximum number of answers is 64."
         )
         error = True
 

@@ -116,8 +116,8 @@
       $(function () {
 
           $("#add-more-choices").click(function () {
-              if ($("#answers-container input").length > 19) {
-                  alert("Maximum 20 answers.");
+              if ($("#answers-container input").length > 63) {
+                  alert("Maximum 64 answers.");
                   return;
               }
               $('#answers-container').append(
