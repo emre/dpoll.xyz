@@ -102,7 +102,7 @@ def sc_login(request):
         if user.is_active:
             login(request, user)
             # Trigger update on user info (SP, rep, etc.)
-            user.update_info_async()
+            user.update_info()
             request.session["sc_token"] = request.GET.get("access_token")
             if request.session.get("initial_referer"):
                 return redirect(request.session["initial_referer"])
