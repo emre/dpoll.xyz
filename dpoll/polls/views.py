@@ -406,8 +406,12 @@ def vote(request, user, permlink):
 
     # send it to the steem blockchain
     sc_client = Client(access_token=request.session.get("sc_token"))
-    choice_text = ",".join([c.text.strip() for c in choice_instances])
-    body = f"Voted for *{choice_text}*."
+
+    choice_text = ""
+    for c in choice_instances:
+        choice_text += f" - {c.text.strip()}\n"
+
+    body = f"Voted for \n {choice_text}"
     if additional_thoughts:
         body += f"\n\n{additional_thoughts}"
     comment = Comment(
