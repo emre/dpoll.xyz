@@ -8,6 +8,7 @@ from rest_framework import routers
 from .api_views import (
     QuestionViewSet,
     TeamView,
+    AuditView,
     SponsorViewSet,
     UserViewSet
 )
@@ -32,4 +33,5 @@ urlpatterns = [
     path('team/', views.team, name='team'),
     path('edit/@<str:author>/<str:permlink>/', views.edit_poll, name='edit'),
     path('polls_by_vote/', views.polls_by_vote_count, name='polls-by-vote'),
+    path('api/v1/audit/', AuditView.as_view(), name="api-audit")
 ]
