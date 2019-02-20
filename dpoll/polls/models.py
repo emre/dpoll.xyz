@@ -198,22 +198,44 @@ class Question(models.Model):
     def audit_response(self, choice_list):
         # Return a .xls file includes blockchain references and votes
         data = PrettyTable()
-        data.field_names = ["Choice", "Voter", "Transaction ID", "Block num"]
+        data.field_names = [
+            "Choice", "Voter", "Transaction ID", "Block num",
+            "Rep", "SP", "Post Count", "Account Age"]
         for choice in choice_list:
             if hasattr(choice, 'voters'):
                 for user in choice.voters:
+                    rep = round(user.reputation, 2)
+                    sp = int(user.sp)
+
                     try:
                         audit = VoteAudit.objects.get(
                             question=self,
                             voter=user,
                         )
                         data.add_row(
-                            [choice.text, user.username,
-                             audit.trx_id, audit.block_id]
+                            [
+                                choice.text,
+                                user.username,
+                                audit.trx_id,
+                                audit.block_id,
+                                rep,
+                                sp,
+                                user.post_count,
+                                user.account_age
+                            ]
                         )
                     except VoteAudit.DoesNotExist:
                         data.add_row(
-                            [choice.text, user.username, 'missing', 'missing']
+                            [
+                                choice.text,
+                                user.username,
+                                'missing',
+                                'missing',
+                                rep,
+                                sp,
+                                user.post_count,
+                                user.account_age
+                            ]
                         )
 
         return HttpResponse(f"<pre>{data}</pre>")
