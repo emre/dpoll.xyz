@@ -9,7 +9,7 @@ from .models import Question, User, VoteAudit
 from sponsors.models import Sponsor
 from .serializers import (
     QuestionSerializer, SponsorSerializer, UserSerializer,
-    UserDetailSerializer, VoteAuditSerializer,
+    UserDetailSerializer,
 )
 from .views import TEAM_MEMBERS
 
