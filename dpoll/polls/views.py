@@ -101,6 +101,8 @@ def sc_login(request):
     if user is not None:
         if user.is_active:
             login(request, user)
+            # Trigger update on user info (SP, rep, etc.)
+            user.update_info_async()
             request.session["sc_token"] = request.GET.get("access_token")
             if request.session.get("initial_referer"):
                 return redirect(request.session["initial_referer"])
