@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ViewSet
 from rest_framework.views import APIView
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
-from rest_framework.decorators import action
 
 from .models import Question, User, VoteAudit
 from sponsors.models import Sponsor
@@ -34,13 +33,6 @@ class QuestionViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
             raise Http404
 
         return Response(QuestionSerializer(account).data)
-
-    @action(detail=True, methods=['get'])
-    def audit(self, request, pk=None):
-        vote_audit = VoteAudit.objects.get(pk=pk)
-        return Response(VoteAuditSerializer(vote_audit).data)
-
-
 
 
 class TeamView(ViewSet):
