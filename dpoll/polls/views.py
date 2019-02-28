@@ -47,6 +47,7 @@ def index(request):
 
     query_params = {
         "expire_at__gt": now(),
+        "is_deleted": False,
     }
     # ordering by new, trending, or promoted.
     order_by = "-id"
@@ -101,8 +102,11 @@ def sc_login(request):
     if user is not None:
         if user.is_active:
             login(request, user)
-            # Trigger update on user info (SP, rep, etc.)
-            user.update_info()
+            try:
+                # Trigger update on user info (SP, rep, etc.)
+                user.update_info()
+            except Exception as e:
+                user.update_info_async()
             request.session["sc_token"] = request.GET.get("access_token")
             if request.session.get("initial_referer"):
                 return redirect(request.session["initial_referer"])
@@ -304,7 +308,8 @@ def detail(request, user, permlink):
         )
 
     try:
-        poll = Question.objects.get(username=user, permlink=permlink)
+        poll = Question.objects.get(
+            username=user, permlink=permlink, is_deleted=False)
     except Question.DoesNotExist:
         raise Http404
 

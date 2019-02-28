@@ -113,6 +113,7 @@ class Question(models.Model):
         blank=True,
         null=True,
         help_text="Promotion amount in SBD")
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return self.text
