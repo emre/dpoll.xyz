@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'polls',
     'sponsors',
+    'communities',
     'rest_framework',
     'corsheaders',
 
