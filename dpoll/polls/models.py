@@ -22,7 +22,7 @@ def sa_stake_based_voting_point(user):
     point = user.vests
     if user.vests > SA_STAKE_LIMIT:
         point = SA_STAKE_LIMIT * (
-                math.log10(user.vests) - math.log10(user.vests) + 1)
+                math.log10(user.vests) - math.log10(SA_STAKE_LIMIT) + 1)
 
     return float(point)
 
