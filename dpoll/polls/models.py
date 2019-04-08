@@ -14,7 +14,6 @@ from prettytable import PrettyTable
 from communities.models import Community
 
 
-
 class User(AbstractUser):
 
     reputation = models.DecimalField(
@@ -22,6 +21,7 @@ class User(AbstractUser):
     post_count = models.IntegerField(blank=True, null=True)
     sp = models.DecimalField(max_digits=64, decimal_places=4, blank=True,
                              null=True)
+    vests = models.DecimalField(max_digits=64, decimal_places=6, blank=True, null=True)
     account_age = models.IntegerField(blank=True, null=True)
 
     @property
@@ -81,6 +81,7 @@ class User(AbstractUser):
 
         self.reputation = acc.reputation(precision=4)
         self.sp = vests / 1e6 * steem_per_mvest
+        self.vests = vests
         self.account_age = (timezone.now() - t).total_seconds() / 86400
         self.post_count = account_detail["post_count"]
         self.save()
