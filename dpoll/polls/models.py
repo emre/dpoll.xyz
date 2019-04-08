@@ -19,11 +19,12 @@ SA_STAKE_LIMIT = 500000000
 
 
 def sa_stake_based_voting_point(user):
+    point = user.vests
     if user.vests > SA_STAKE_LIMIT:
-        return SA_STAKE_LIMIT * (
+        point = SA_STAKE_LIMIT * (
                 math.log10(user.vests) - math.log10(user.vests) + 1)
 
-    return user.vests
+    return float(point)
 
 
 class User(AbstractUser):
