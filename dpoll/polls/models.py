@@ -11,6 +11,8 @@ from lightsteem.client import Client
 from lightsteem.helpers.account import Account
 from lightsteem.helpers.amount import Amount
 from prettytable import PrettyTable
+from communities.models import Community
+
 
 
 class User(AbstractUser):
@@ -157,16 +159,30 @@ class Question(models.Model):
         return self
 
     def votes_summary(self, age=None, rep=None, post_count=None, sp=None,
-                      stake_based=False):
-        filter_exists = bool(rep or sp or age or post_count)
+                      stake_based=False, community=None):
+        filter_exists = bool(rep or sp or age or post_count or community)
         choices = list(self.choices.all())
+
+        community_members = []
+        community_filter_active = community or False
+        if community:
+            try:
+                # Check if the community really exists
+                # In case it doesn't return an empty list for the community
+                # members.
+                community_members = Community.objects.get(
+                    name=community).member_list
+            except Community.DoesNotExist:
+                community_filter_active = False
 
         # Calculate vote count
         # if the query includes filters, then exclude the non-eligible votes.
         if filter_exists:
             all_votes = int(sum(
                 [c.filtered_vote_count(
-                    rep, age, post_count, sp, stake_based=stake_based) for c in
+                    rep, age, post_count, sp, stake_based=stake_based,
+                    community=community_members,
+                    community_filter_active=community_filter_active) for c in
                  choices]))
         else:
             if stake_based:
@@ -184,7 +200,8 @@ class Question(models.Model):
             if choice.votes:
                 choice_data = choice_data.inject_stats(
                     filter_exists, rep, age, post_count, sp, all_votes,
-                    stake_based=stake_based,
+                    stake_based=stake_based, community=community_members,
+                    community_filter_active=community_filter_active
                 )
                 choices_selected += 1
             else:
@@ -195,9 +212,7 @@ class Question(models.Model):
         return choice_list, choice_list_ordered, choices_selected,\
                filter_exists, all_votes
 
-
     def audit_response(self, choice_list):
-        # Return a .xls file includes blockchain references and votes
         data = PrettyTable()
         data.field_names = [
             "Choice", "Voter", "Transaction ID", "Block num",
@@ -253,12 +268,17 @@ class Choice(models.Model):
         return self.voted_users.all().count()
 
     def filtered_vote_count(self, rep, account_age, post_count, sp,
-                            return_users=False, stake_based=False):
+                            return_users=False, stake_based=False,
+                            community=None, community_filter_active=False):
 
         filtered_user_count = 0
         filtered_users = []
         total_stake_in_sp = 0
         for user in self.voted_users.all().order_by("-sp"):
+            if community_filter_active:
+                if user.username not in community:
+                    continue
+
             if rep:
                 try:
                     rep = int(rep)
@@ -295,12 +315,15 @@ class Choice(models.Model):
         return returned_data
 
     def inject_stats(self, filter_exists, rep, age, post_count, sp, all_votes,
-                     stake_based=False):
+                     stake_based=False, community=None,
+                     community_filter_active=False):
         if filter_exists:
             self.vote_count, self.voters = self. \
                 filtered_vote_count(
-                rep, age, post_count, sp, return_users=True,
-                stake_based=stake_based)
+                    rep, age, post_count, sp, return_users=True,
+                    stake_based=stake_based, community=community,
+                    community_filter_active=community_filter_active
+            )
             if self.vote_count == 0:
                 self.percent = 0
             else:

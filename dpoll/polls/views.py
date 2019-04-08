@@ -18,6 +18,8 @@ from steemconnect.operations import Comment
 
 from base.utils import add_tz_info
 from .models import Question, Choice, User, VoteAudit
+from communities.models import Community
+
 from .utils import (
     get_sc_client, get_comment_options, get_top_dpollers,
     get_top_voters, validate_input, add_or_get_question, add_choices,
@@ -317,7 +319,7 @@ def detail(request, user, permlink):
     sp = sanitize_filter_value(request.GET.get("sp"))
     age = sanitize_filter_value(request.GET.get("age"))
     post_count = sanitize_filter_value(request.GET.get("post_count"))
-
+    community = request.GET.get("community")
 
     choice_list, choice_list_ordered, choices_selected, filter_exists, \
             all_votes = poll.votes_summary(
@@ -326,6 +328,7 @@ def detail(request, user, permlink):
                 sp=sp,
                 post_count=post_count,
                 stake_based=request.GET.get("stake_based") == "1",
+                community=community,
             )
 
     user_votes = Choice.objects.filter(
@@ -344,6 +347,7 @@ def detail(request, user, permlink):
         "user_votes": user_votes,
         "show_bars": choices_selected > 1,
         "filters_applied": filter_exists,
+        "communities": Community.objects.all().order_by("-id"),
     })
 
 

@@ -152,6 +152,21 @@
                   Stake Based Voting
                 </option>
               </select>
+
+              {% if communities %}
+              Community
+              <select class="form-control" id="community-select"
+                      name="community">
+               <option value="">
+                -----
+                </option>
+                {% for community in communities %}
+                <option value="{{ community.name }}" {% if community.name == request.GET.community %} selected="selected"{% endif %}>
+                    {{ community.name }}
+                </option>
+                {% endfor %}
+                {% endif %}
+              </select>
                 <button type="submit" id="filter-submit"
                         class="btn btn-primary" style="margin-top:10px;">Filter
                 </button>
