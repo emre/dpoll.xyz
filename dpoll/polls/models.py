@@ -358,7 +358,9 @@ class Choice(models.Model):
             else:
                 self.percent = round(
                     100 * self.vote_count / all_votes, 2)
+            self.voter_count = len(self.voters)
         else:
+            self.voter_count = self.voted_users.count()
             if stake_based:
                 self.vote_count = sum([u.sp for u in self.voted_users.all()])
             elif sa_stake_based:

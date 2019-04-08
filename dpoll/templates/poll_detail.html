@@ -90,7 +90,7 @@
                     <span class="pull-right"> <a
                         data-toggle="modal"
                         data-target="#voter-list-{{ choice.id }}">
-       {{ choice.vote_count|cool_number }} {% if request.GET.stake_based == "1" %}SP{% endif %}{% if request.GET.stake_based == "2" %}VESTS{% endif %}    / {{ total_votes|cool_number  }} {% if request.GET.stake_based == "1" %}SP  ({{ choice.votes }} Voters){% endif %} {% if request.GET.stake_based == "2" %}VESTS  ({{ choice.votes }} Voters){% endif %}
+       {{ choice.vote_count|cool_number }} {% if request.GET.stake_based == "1" %}SP{% endif %}{% if request.GET.stake_based == "2" %}VESTS{% endif %}    / {{ total_votes|cool_number  }} {% if request.GET.stake_based == "1" %}SP  ({{ choice.voter_count }} Voters){% endif %} {% if request.GET.stake_based == "2" %}VESTS  ({{ choice.voter_count }} Voters){% endif %}
                       </a></span>
                   </small>
                   <div class="progress progress-striped active">
