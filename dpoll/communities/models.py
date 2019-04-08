@@ -3,8 +3,8 @@ from django.db import models
 
 class Community(models.Model):
     name = models.CharField("Community name", max_length=255)
-    owners = models.ManyToManyField("polls.User", blank=True)
-    members = models.TextField(blank=True, null=True)
+    members = models.TextField(blank=True, null=True,
+                               help_text="A list of members separated by newlines. (\\n)")
 
     @property
     def member_list(self):
@@ -12,3 +12,6 @@ class Community(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name_plural = "Communities"

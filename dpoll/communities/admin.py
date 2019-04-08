@@ -2,4 +2,9 @@ from django.contrib import admin
 
 from .models import Community
 
-admin.site.register(Community)
+
+class CommunityAdmin(admin.ModelAdmin):
+    pass
+
+
+admin.site.register(Community, CommunityAdmin)
