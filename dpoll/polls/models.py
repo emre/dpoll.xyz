@@ -18,11 +18,11 @@ from communities.models import Community
 SA_STAKE_LIMIT = 500000000
 
 
-def sa_stake_based_voting_point(user):
-    point = user.vests
-    if user.vests > SA_STAKE_LIMIT:
+def sa_stake_based_voting_point(vests):
+    point = vests
+    if vests > SA_STAKE_LIMIT:
         point = SA_STAKE_LIMIT * (
-                math.log10(user.vests) - math.log10(SA_STAKE_LIMIT) + 1)
+                math.log10(vests) - math.log10(SA_STAKE_LIMIT) + 1)
 
     return float(point)
 
@@ -66,6 +66,10 @@ class User(AbstractUser):
     @property
     def profile_url(self):
         return reverse('profile', args=[self.username])
+
+    @property
+    def sa_effective_vests(self):
+        return sa_stake_based_voting_point(self.vests)
 
     def update_info(self, steem_per_mvest=None, account_detail=None):
         c = Client()
@@ -206,12 +210,12 @@ class Question(models.Model):
                 all_votes = 0
                 for c in choices:
                     for u in c.voted_users.all():
-                        all_votes += sa_stake_based_voting_point(u)
+                        all_votes += sa_stake_based_voting_point(u.vests)
             elif sa_stake_based:
                 all_votes = 0
                 for c in choices:
                     for u in c.voted_users.all():
-                        all_votes += sa_stake_based_voting_point(u)
+                        all_votes += sa_stake_based_voting_point(u.vests)
             else:
                 all_votes = sum([c.votes for c in choices])
         choice_list = []
@@ -329,7 +333,7 @@ class Choice(models.Model):
                     pass
             filtered_user_count += 1
             total_stake_in_sp += user.sp
-            total_sa_stake_in_vests += sa_stake_based_voting_point(user)
+            total_sa_stake_in_vests += sa_stake_based_voting_point(user.vests)
             filtered_users.append(user)
 
         if sa_stake_based:
@@ -365,7 +369,7 @@ class Choice(models.Model):
                 self.vote_count = sum([u.sp for u in self.voted_users.all()])
             elif sa_stake_based:
                 self.vote_count = sum(
-                    [sa_stake_based_voting_point(u) for u in self.voted_users.all()])
+                    [sa_stake_based_voting_point(u.vests) for u in self.voted_users.all()])
             else:
                 self.vote_count = self.votes
             self.percent = round(

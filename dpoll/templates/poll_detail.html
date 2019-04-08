@@ -210,6 +210,7 @@
                 <th scope="col">Account</th>
                 <th scope="col">SP</th>
                 <th scope="col">VESTS</th>
+                {% if request.GET.stake_based == "2" %}<th>(SA) Effective VESTS</th>{% endif %}
               </tr>
               </thead>
               <tbody>
@@ -221,9 +222,15 @@
                  <td>
                       {{ user.sp|cool_number  }}
                   </td>
-                                 <td>
-                      {{ user.vests|cool_number  }}
+                    <td>
+                    {{ user.vests|cool_number  }}
+
+                    </td>
+                     {% if request.GET.stake_based == "2" %}
+                  <td>
+                      {{ user.sa_effective_vests|cool_number  }}
                   </td>
+                {% endif %}
 
                 </tr>
               {% endfor %}
