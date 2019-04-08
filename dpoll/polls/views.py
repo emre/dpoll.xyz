@@ -321,6 +321,19 @@ def detail(request, user, permlink):
     post_count = sanitize_filter_value(request.GET.get("post_count"))
     community = request.GET.get("community")
 
+    # check the existance of the community
+    try:
+        Community.objects.get(name=community)
+    except Community.DoesNotExist:
+        community = None
+
+    if community:
+        messages.add_message(
+            request,
+            messages.INFO,
+            f"Note: Only showing {community} members' choices."
+        )
+
     choice_list, choice_list_ordered, choices_selected, filter_exists, \
             all_votes = poll.votes_summary(
                 age=age,
