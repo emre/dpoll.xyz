@@ -5,6 +5,9 @@ from django.contrib.auth.admin import UserAdmin
 
 class MyUserAdmin(UserAdmin):
     search_fields = ('username', )
+    fieldsets = UserAdmin.fieldsets + (
+            (None, {'fields': ('sp', 'vests', 'account_age', 'post_count')}),
+    )
 
 
 class ChoicesInline(admin.TabularInline):
