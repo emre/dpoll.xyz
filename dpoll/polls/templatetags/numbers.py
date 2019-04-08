@@ -4,7 +4,7 @@ register = template.Library()
 
 
 @register.filter
-def cool_number(value, num_decimals=2):
+def cool_number(value, num_decimals=6):
     """
     Django template filter to convert regular numbers to a
     cool format (ie: 2K, 434.4K, 33M...)
@@ -17,6 +17,8 @@ def cool_number(value, num_decimals=2):
     if int_value < 1000:
         return str(int_value)
     elif int_value < 1000000:
-        return formatted_number.format(int_value/1000.0).rstrip('0.') + 'K'
+        return formatted_number.format(int_value/1000).split(".")[0] + 'K'
+    elif int_value < 1000000000:
+        return formatted_number.format(int_value/1000000).split(".")[0] + 'M'
     else:
-        return formatted_number.format(int_value/1000000.0).rstrip('0.') + 'M'
+        return formatted_number.format(int_value/1000000000).split(".")[0] + 'B'

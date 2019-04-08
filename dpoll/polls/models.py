@@ -1,6 +1,7 @@
 import threading
 import copy
 import pytz
+import math
 from dateutil.parser import parse
 from django.contrib.auth.models import AbstractUser
 from django.db import models
@@ -12,6 +13,17 @@ from lightsteem.helpers.account import Account
 from lightsteem.helpers.amount import Amount
 from prettytable import PrettyTable
 from communities.models import Community
+
+
+SA_STAKE_LIMIT = 500000000
+
+
+def sa_stake_based_voting_point(user):
+    if user.vests > SA_STAKE_LIMIT:
+        return SA_STAKE_LIMIT * (
+                math.log10(user.vests) - math.log10(user.vests) + 1)
+
+    return user.vests
 
 
 class User(AbstractUser):
@@ -160,7 +172,7 @@ class Question(models.Model):
         return self
 
     def votes_summary(self, age=None, rep=None, post_count=None, sp=None,
-                      stake_based=False, community=None):
+                      stake_based=False, sa_stake_based=False, community=None):
         filter_exists = bool(rep or sp or age or post_count or community)
         choices = list(self.choices.all())
 
@@ -181,7 +193,9 @@ class Question(models.Model):
         if filter_exists:
             all_votes = int(sum(
                 [c.filtered_vote_count(
-                    rep, age, post_count, sp, stake_based=stake_based,
+                    rep, age, post_count, sp,
+                    stake_based=stake_based,
+                    sa_stake_based=sa_stake_based,
                     community=community_members,
                     community_filter_active=community_filter_active) for c in
                  choices]))
@@ -191,7 +205,12 @@ class Question(models.Model):
                 all_votes = 0
                 for c in choices:
                     for u in c.voted_users.all():
-                        all_votes += u.sp
+                        all_votes += sa_stake_based_voting_point(u)
+            elif sa_stake_based:
+                all_votes = 0
+                for c in choices:
+                    for u in c.voted_users.all():
+                        all_votes += sa_stake_based_voting_point(u)
             else:
                 all_votes = sum([c.votes for c in choices])
         choice_list = []
@@ -201,7 +220,8 @@ class Question(models.Model):
             if choice.votes:
                 choice_data = choice_data.inject_stats(
                     filter_exists, rep, age, post_count, sp, all_votes,
-                    stake_based=stake_based, community=community_members,
+                    stake_based=stake_based, sa_stake_based=sa_stake_based,
+                    community=community_members,
                     community_filter_active=community_filter_active
                 )
                 choices_selected += 1
@@ -269,12 +289,13 @@ class Choice(models.Model):
         return self.voted_users.all().count()
 
     def filtered_vote_count(self, rep, account_age, post_count, sp,
-                            return_users=False, stake_based=False,
+                            return_users=False, stake_based=False, sa_stake_based=False,
                             community=None, community_filter_active=False):
 
         filtered_user_count = 0
         filtered_users = []
         total_stake_in_sp = 0
+        total_sa_stake_in_vests = 0
         for user in self.voted_users.all().order_by("-sp"):
             if community_filter_active:
                 if user.username not in community:
@@ -307,22 +328,28 @@ class Choice(models.Model):
                     pass
             filtered_user_count += 1
             total_stake_in_sp += user.sp
+            total_sa_stake_in_vests += sa_stake_based_voting_point(user)
             filtered_users.append(user)
 
-        returned_data = int(total_stake_in_sp) if stake_based else \
-            filtered_user_count
+        if sa_stake_based:
+            returned_data = int(total_sa_stake_in_vests)
+        elif stake_based:
+            returned_data = int(total_stake_in_sp)
+        else:
+            returned_data = filtered_user_count
+
         if return_users:
             return returned_data, filtered_users
         return returned_data
 
     def inject_stats(self, filter_exists, rep, age, post_count, sp, all_votes,
-                     stake_based=False, community=None,
+                     stake_based=False, sa_stake_based=False, community=None,
                      community_filter_active=False):
         if filter_exists:
             self.vote_count, self.voters = self. \
                 filtered_vote_count(
                     rep, age, post_count, sp, return_users=True,
-                    stake_based=stake_based, community=community,
+                    stake_based=stake_based, sa_stake_based=sa_stake_based, community=community,
                     community_filter_active=community_filter_active
             )
             if self.vote_count == 0:
@@ -333,6 +360,9 @@ class Choice(models.Model):
         else:
             if stake_based:
                 self.vote_count = sum([u.sp for u in self.voted_users.all()])
+            elif sa_stake_based:
+                self.vote_count = sum(
+                    [sa_stake_based_voting_point(u) for u in self.voted_users.all()])
             else:
                 self.vote_count = self.votes
             self.percent = round(

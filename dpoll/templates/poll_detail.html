@@ -90,7 +90,7 @@
                     <span class="pull-right"> <a
                         data-toggle="modal"
                         data-target="#voter-list-{{ choice.id }}">
-       {{ choice.vote_count|cool_number }} {% if request.GET.stake_based == "1" %}SP{% endif %} / {{ total_votes|cool_number  }} {% if request.GET.stake_based == "1" %}SP  ({{ choice.votes }} Voters){% endif %}
+       {{ choice.vote_count|cool_number }} {% if request.GET.stake_based == "1" %}SP{% endif %}{% if request.GET.stake_based == "2" %}VESTS{% endif %}    / {{ total_votes|cool_number  }} {% if request.GET.stake_based == "1" %}SP  ({{ choice.votes }} Voters){% endif %} {% if request.GET.stake_based == "2" %}VESTS  ({{ choice.votes }} Voters){% endif %}
                       </a></span>
                   </small>
                   <div class="progress progress-striped active">
@@ -151,6 +151,10 @@
                         {% if request.GET.stake_based == "1" %}selected="selected"{% endif %}>
                   Stake Based Voting
                 </option>
+               <option value="2"
+                        {% if request.GET.stake_based == "2" %}selected="selected"{% endif %}>
+                  SA Stake Based Voting
+                </option>
               </select>
 
               {% if communities %}
@@ -205,6 +209,7 @@
               <tr>
                 <th scope="col">Account</th>
                 <th scope="col">SP</th>
+                <th scope="col">VESTS</th>
               </tr>
               </thead>
               <tbody>
@@ -215,6 +220,9 @@
                   </td>
                  <td>
                       {{ user.sp|cool_number  }}
+                  </td>
+                                 <td>
+                      {{ user.vests|cool_number  }}
                   </td>
 
                 </tr>
