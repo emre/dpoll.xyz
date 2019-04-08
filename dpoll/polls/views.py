@@ -328,6 +328,7 @@ def detail(request, user, permlink):
                 sp=sp,
                 post_count=post_count,
                 stake_based=request.GET.get("stake_based") == "1",
+                sa_stake_based=request.GET.get("stake_based") == "2",
                 community=community,
             )
 
