@@ -10,8 +10,9 @@ from django.contrib.auth.views import auth_logout
 from django.core.paginator import Paginator
 from django.db.models import Count
 from django.http import Http404
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
+from django.views.decorators.csrf import csrf_exempt
 from django.utils.timezone import now
 from steemconnect.client import Client
 from steemconnect.operations import Comment
@@ -572,3 +573,44 @@ def polls_by_vote_count(request):
 
     return render(request, "polls_by_vote.html", {
         "polls": polls, "start_time": start_time, "end_time": end_time})
+
+@csrf_exempt
+def vote_transaction_details(request):
+    poll_id = request.POST.get("poll_id")
+    choices = request.POST.getlist("choices[]")
+    additional_thoughts = request.POST.get("additional_thoughts")
+    username = request.POST.get("username")
+    poll = Question.objects.get(pk=int(poll_id))
+
+    choice_instances = []
+    for choice_id in choices:
+        choice = Choice.objects.get(pk=int(choice_id))
+        choice_instances.append(choice)
+
+    choice_text = ""
+    for c in choice_instances:
+        choice_text += f" - {c.text.strip()}\n"
+
+    body = f"Voted for \n {choice_text}"
+    if additional_thoughts:
+        body += f"\n\n{additional_thoughts}"
+    permlink = str(uuid.uuid4())
+    parent_author = poll.username
+    parent_permlink = poll.permlink
+    json_metadata = {
+        "tags": settings.DEFAULT_TAGS,
+        "app": f"dpoll/{settings.DPOLL_APP_VERSION}",
+        "content_type": "poll_vote",
+        "votes": [c.text.strip() for c in choice_instances],
+    }
+
+    return JsonResponse({
+        "username": username,
+        "permlink": permlink,
+        "title": "",
+        "body": body,
+        "json_metadata": json_metadata,
+        "parent_username": parent_author,
+        "parent_permlink": parent_permlink,
+        "comment_options": "",
+    })

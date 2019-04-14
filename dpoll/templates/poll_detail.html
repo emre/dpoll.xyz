@@ -3,372 +3,464 @@
 {% load numbers %}
 {% block content %}
 
-  <div class="container">
-    <div class="row">
-      <div class="col-md-12">
-        <h3>{{ poll.text }}</h3>
-        <h6>Asked by <a
-            href="{% url 'profile' poll.username %}">{{ poll.username }}</a>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h3>{{ poll.text }}</h3>
+                <h6>Asked by <a
+                        href="{% url 'profile' poll.username %}">{{ poll.username }}</a>
 
 
-          <span class="pull-right"><a id="promote-submit"
-                                      style="margin: 5px;"
-                                      href="#">
+                    <span class="pull-right"><a id="promote-submit"
+                                                style="margin: 5px;"
+                                                href="#">
              <strong>Promote</strong></a> -
         <a href="https://steemit.com/@{{ poll.username }}/{{ poll.permlink }}">View
           in Steemit</a> - <a
-                href="/detail/@{{ poll.username }}/{{ poll.permlink }}/?audit=1">Audit</a>
+                                href="/detail/@{{ poll.username }}/{{ poll.permlink }}/?audit=1">Audit</a>
            </span>
 
-        </h6>
+                </h6>
 
 
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-8">
-        <div class="user-poll-section">
-          <div class="panel panel-default">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="user-poll-section">
+                    <div class="panel panel-default">
 
-            <form method="POST"
-                  action="{% url 'vote' poll.username poll.permlink %}"
-                  id="vote-form">
-              {% csrf_token %}
-              <div class="panel-body" style="padding: 15px !important;">
-                <p>
-                  {{ poll.description |striptags | force_escape | markdown |safe }}
-                </p>
-                <input type="hidden" id="vote-comment" name="vote-comment">
-                {% for choice in choices_ordered %}
-                  <div class="radio">
-                    <label>
-                      <input
-                          type="{% if poll.allow_multiple_choices %}checkbox{% else %}radio{% endif %}"
-                          name="choice-id"
-                          id="choice_id_{{ choice.id }}"
-                          value="{{ choice.id }}"
-                          {% for user_vote in user_votes %}
-                            {% if user_vote == choice.id %}
-                          checked="true"{% endif %}{% endfor %}>
-                      <strong> </strong>{{ choice.text }}
-                    </label>
-                  </div>
-                {% endfor %}
+                        <form method="POST"
+                              action="{% url 'vote' poll.username poll.permlink %}"
+                              id="vote-form">
+                            {% csrf_token %}
+                            <div class="panel-body" style="padding: 15px !important;">
+                                <p>
+                                    {{ poll.description |striptags | force_escape | markdown |safe }}
+                                </p>
+                                <input type="hidden" id="vote-comment" name="vote-comment">
+                                {% for choice in choices_ordered %}
+                                    <div class="radio">
+                                        <label>
+                                            <input
+                                                    type="{% if poll.allow_multiple_choices %}checkbox{% else %}radio{% endif %}"
+                                                    name="choice-id"
+                                                    id="choice_id_{{ choice.id }}"
+                                                    value="{{ choice.id }}"
+                                                    {% for user_vote in user_votes %}
+                                                        {% if user_vote == choice.id %}
+                                                    checked="true"{% endif %}{% endfor %}>
+                                            <strong> </strong>{{ choice.text }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
 
-                <div class="panel-default">
-                  {% if request.user.is_authenticated %}
-                    <button type="submit" id="vote-submit"
-                            class="btn btn-primary"
-                            {% if user_votes %}disabled{% endif %}>
-                      Vote
-                    </button>
-                  {% else %}
-                    <div class="text-muted">You need to be logged in to vote for
-                      the polls. <a href="{% url 'login' %}">Click</a> to log in
-                      via Steemconnect.
+                                <div class="panel-default">
+                                    {% if request.user.is_authenticated %}
+                                        <button type="submit" id="vote-submit"
+                                                class="btn btn-primary"
+                                                {% if user_votes %}disabled{% endif %}>
+                                            Vote
+                                        </button>
+                                    {% else %}
+                                        <div class="text-muted">You need to be logged in to vote for
+                                            the polls. <a href="{% url 'login' %}">Click</a> to log in
+                                            via Steemconnect or alternatively you can vote with <a href="#" id="vote-with-keychain">
+                                                Keychain</a>.
+                                        </div>
+                                    {% endif %}
+
+                                    {% if request.user.username == poll.username and poll.is_editable %}
+                                        <a id="vote-submit"
+                                           href="{% url 'edit' poll.username poll.permlink %}"
+                                           class="btn btn-primary">
+                                            Edit
+                                        </a>
+                                    {% endif %}
+
+                                </div>
+                                <hr/>
+                        </form>
+
+                        {% if not total_votes %}
+                            <em>No votes, yet...</em>
+                        {% else %}
+                            {% for choice in choices %}
+                                {% if choice.percent  > 0 %}
+                                    {{ choice.text }}
+                                    <small><em>({{ choice.percent }}%)</em>
+                                        <span class="pull-right"> <a
+                                                data-toggle="modal"
+                                                data-target="#voter-list-{{ choice.id }}">
+       {{ choice.vote_count|cool_number }} {% if request.GET.stake_based == "1" %}SP{% endif %}
+                                            {% if request.GET.stake_based == "2" %}VESTS{% endif %}
+                                            / {{ total_votes|cool_number }} {% if request.GET.stake_based == "1" %}SP  (
+                                            {{ choice.voter_count }} Voters){% endif %}
+                                            {% if request.GET.stake_based == "2" %}VESTS  ({{ choice.voter_count }}
+                                                Voters){% endif %}
+                      </a></span>
+                                    </small>
+                                    <div class="progress progress-striped active">
+                                        <div class="progress-bar progress-bar-success"
+                                             role="progressbar" aria-valuenow="10"
+                                             aria-valuemin="0" aria-valuemax="100"
+                                             style="width: {{ choice.percent }}%">
+                  <span
+                          class="sr-only">{{ choice.percent }}% Complete (success)</span>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+
+                        {% endif %}
                     </div>
-                  {% endif %}
-                  {% if request.user.username == poll.username and poll.is_editable %}
-                    <a id="vote-submit"
-                       href="{% url 'edit' poll.username poll.permlink %}"
-                       class="btn btn-primary">
-                      Edit
-                    </a>
-                  {% endif %}
 
                 </div>
-                <hr/>
-            </form>
 
-            {% if not total_votes %}
-              <em>No votes, yet...</em>
-            {% else %}
-              {% for choice in choices %}
-                {% if choice.percent  > 0 %}
-                  {{ choice.text }}
-                  <small><em>({{ choice.percent }}%)</em>
-                    <span class="pull-right"> <a
-                        data-toggle="modal"
-                        data-target="#voter-list-{{ choice.id }}">
-       {{ choice.vote_count|cool_number }} {% if request.GET.stake_based == "1" %}SP{% endif %}{% if request.GET.stake_based == "2" %}VESTS{% endif %}    / {{ total_votes|cool_number  }} {% if request.GET.stake_based == "1" %}SP  ({{ choice.voter_count }} Voters){% endif %} {% if request.GET.stake_based == "2" %}VESTS  ({{ choice.voter_count }} Voters){% endif %}
-                      </a></span>
-                  </small>
-                  <div class="progress progress-striped active">
-                    <div class="progress-bar progress-bar-success"
-                         role="progressbar" aria-valuenow="10"
-                         aria-valuemin="0" aria-valuemax="100"
-                         style="width: {{ choice.percent }}%">
-                  <span
-                      class="sr-only">{{ choice.percent }}% Complete (success)</span>
-                    </div>
-                  </div>
-                {% endif %}
-              {% endfor %}
-
-            {% endif %}
-          </div>
-
-        </div>
-
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div>
-        <div class="user-poll-section">
-
-          <div class="panel panel-default">
-
-            <div class="panel-body" style="padding: 15px !important;">
-              <h4>Available Filters</h4>
-              <form method="GET">
-                Minimum Reputation<br/>
-                <input type="text"
-                       class="form-control"
-                       value="{% if request.GET.rep %}{{ request.GET.rep }}{% else %}25{% endif %}"
-                       name="rep"/>
-                Minimum SP <br/>
-                <input type="text" name="sp"
-                       class="form-control"
-                       placeholder="0" value="{{ request.GET.sp }}">
-                Minimum account age (Days)<br/>
-                <input type="text" name="age" class="form-control"
-                       placeholder="0" value="{{ request.GET.age }}">
-
-
-                Minimum post count<br/>
-                <input type="text" name="post_count" placeholder="0"
-                       class="form-control"
-                       value="{{ request.GET.post_count }}">
-
-                Result layout
-              <select class="form-control" id="stake-based-select"
-                      name="stake_based">
-                <option value="0"
-                        {% if request.GET.stake_based == "0" %}selected="selected"{% endif %}>
-                  Account Based Voting
-                </option>
-                <option value="1"
-                        {% if request.GET.stake_based == "1" %}selected="selected"{% endif %}>
-                  Stake Based Voting
-                </option>
-               <option value="2"
-                        {% if request.GET.stake_based == "2" %}selected="selected"{% endif %}>
-                  SA Stake Based Voting
-                </option>
-              </select>
-
-              {% if communities %}
-              Community
-              <select class="form-control" id="community-select"
-                      name="community">
-               <option value="">
-                -----
-                </option>
-                {% for community in communities %}
-                <option value="{{ community.name }}" {% if community.name == request.GET.community %} selected="selected"{% endif %}>
-                    {{ community.name }}
-                </option>
-                {% endfor %}
-                {% endif %}
-              </select>
-                <button type="submit" id="filter-submit"
-                        class="btn btn-primary" style="margin-top:10px;">Filter
-                </button>
-
-                {% if filters_applied %}
-                  <a href="/detail/@{{ poll.username }}/{{ poll.permlink }}/"
-                     class="btn btn-primary" style="margin-top:10px;">Clear
-                    Filters
-                  </a>{% endif %}
-              </form>
             </div>
-          </div>
         </div>
+        <div class="col-md-4">
+            <div>
+                <div class="user-poll-section">
 
-      </div>
+                    <div class="panel panel-default">
 
+                        <div class="panel-body" style="padding: 15px !important;">
+                            <h4>Available Filters</h4>
+                            <form method="GET">
+                                Minimum Reputation<br/>
+                                <input type="text"
+                                       class="form-control"
+                                       value="{% if request.GET.rep %}{{ request.GET.rep }}{% else %}25{% endif %}"
+                                       name="rep"/>
+                                Minimum SP <br/>
+                                <input type="text" name="sp"
+                                       class="form-control"
+                                       placeholder="0" value="{{ request.GET.sp }}">
+                                Minimum account age (Days)<br/>
+                                <input type="text" name="age" class="form-control"
+                                       placeholder="0" value="{{ request.GET.age }}">
+
+
+                                Minimum post count<br/>
+                                <input type="text" name="post_count" placeholder="0"
+                                       class="form-control"
+                                       value="{{ request.GET.post_count }}">
+
+                                Result layout
+                                <select class="form-control" id="stake-based-select"
+                                        name="stake_based">
+                                    <option value="0"
+                                            {% if request.GET.stake_based == "0" %}selected="selected"{% endif %}>
+                                        Account Based Voting
+                                    </option>
+                                    <option value="1"
+                                            {% if request.GET.stake_based == "1" %}selected="selected"{% endif %}>
+                                        Stake Based Voting
+                                    </option>
+                                    <option value="2"
+                                            {% if request.GET.stake_based == "2" %}selected="selected"{% endif %}>
+                                        SA Stake Based Voting
+                                    </option>
+                                </select>
+
+                                {% if communities %}
+                                    Community
+                                    <select class="form-control" id="community-select"
+                                            name="community">
+                                    <option value="">
+                                        -----
+                                    </option>
+                                    {% for community in communities %}
+                                        <option value="{{ community.name }}"
+                                                {% if community.name == request.GET.community %}
+                                                selected="selected"{% endif %}>
+                                            {{ community.name }}
+                                        </option>
+                                    {% endfor %}
+                                {% endif %}
+                                </select>
+                                <button type="submit" id="filter-submit"
+                                        class="btn btn-primary" style="margin-top:10px;">Filter
+                                </button>
+
+                                {% if filters_applied %}
+                                    <a href="/detail/@{{ poll.username }}/{{ poll.permlink }}/"
+                                       class="btn btn-primary" style="margin-top:10px;">Clear
+                                        Filters
+                                    </a>{% endif %}
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
     </div>
-  </div>
 
-  {% for choice in choices %}
-    <div class="modal fade" id="voter-list-{{ choice.id }}" tabindex="-1"
-         role="dialog"
-         aria-labelledby="myModalLabel">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal"
-                    aria-label="Close"><span
-                aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="myModalLabel">Accounts voted
-              for '{{ choice.text }}'</h4>
-          </div>
-          <div class="modal-body">
-            <table class="table">
-              <thead>
-              <tr>
-                <th scope="col">Account</th>
-                <th scope="col">SP</th>
-                <th scope="col">VESTS</th>
-                {% if request.GET.stake_based == "2" %}<th>(SA) Effective VESTS</th>{% endif %}
-              </tr>
-              </thead>
-              <tbody>
-              {% for user in choice.voters %}
-                <tr>
-                  <td><a
-                      href="{% url 'profile' user.username %}">@{{ user.username }}</a>
-                  </td>
-                 <td>
-                      {{ user.sp|cool_number  }}
-                  </td>
-                    <td>
-                    {{ user.vests|cool_number  }}
+    {% for choice in choices %}
+        <div class="modal fade" id="voter-list-{{ choice.id }}" tabindex="-1"
+             role="dialog"
+             aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"
+                                aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel">Accounts voted
+                            for '{{ choice.text }}'</h4>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th scope="col">Account</th>
+                                <th scope="col">SP</th>
+                                <th scope="col">VESTS</th>
+                                {% if request.GET.stake_based == "2" %}
+                                    <th>(SA) Effective VESTS</th>{% endif %}
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for user in choice.voters %}
+                                <tr>
+                                    <td><a
+                                            href="{% url 'profile' user.username %}">@{{ user.username }}</a>
+                                    </td>
+                                    <td>
+                                        {{ user.sp|cool_number }}
+                                    </td>
+                                    <td>
+                                        {{ user.vests|cool_number }}
 
-                    </td>
-                     {% if request.GET.stake_based == "2" %}
-                  <td>
-                      {{ user.sa_effective_vests|cool_number  }}
-                  </td>
-                {% endif %}
+                                    </td>
+                                    {% if request.GET.stake_based == "2" %}
+                                        <td>
+                                            {{ user.sa_effective_vests|cool_number }}
+                                        </td>
+                                    {% endif %}
 
-                </tr>
-              {% endfor %}
-              </tbody>
-            </table>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default"
-                    data-dismiss="modal">Close
-            </button>
-          </div>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default"
+                                data-dismiss="modal">Close
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  {% endfor %}
-  <div class="modal" tabindex="-1" role="dialog" id="vote-comment-modal">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Additional thoughts (Optional)</h5>
-          <button type="button" class="close" data-dismiss="modal"
-                  aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="form-group">
+    {% endfor %}
+    <div class="modal" tabindex="-1" role="dialog" id="vote-comment-modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Additional thoughts (Optional)</h5>
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
             <textarea class="form-control" id="additional-thought-vote"
                       name="description" rows="8"></textarea>
-          </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="additional-thoughts"
+                            class="btn btn-primary">Continue
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" id="additional-thoughts"
-                  class="btn btn-primary">Continue
-          </button>
-        </div>
-      </div>
     </div>
-  </div>
-
-  <div class="modal" tabindex="-1" role="dialog" id="promote-modal">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Poll Promotion</h5>
-          <button type="button" class="close" data-dismiss="modal"
-                  aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+    <div class="modal" tabindex="-1" role="dialog" id="keychain-username">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    Steem Username
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+            <input class="form-control" id="keychain-steem-username"/>
+                                 <div class="form-group">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="keychain-username-submit"
+                            class="btn btn-primary">Continue
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="modal-body">
-          <div class="form-group">
-            <label for="promotion_amount" style="font-size:14px !important;">Amount
-              in SBD</label>
-
-            <input type="text" name="promotion_amount" id="promotion_amount"
-                   class="form-control" value="1">
-          </div>
-          <h5>Note</h5>
-
-          <p style="font-size:14px !important;">
-            Promoted polls are listed on our
-            <a href="{% url 'index' %}?order=promoted">promoted page</a>.
-            Additionaly, the highest amount spent
-            on a poll between active polls gives a winner spot on the <a
-              href="{% url 'index' %}">homepage</a>.
-          </p>
-
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">
-            Close
-          </button>
-
-          <button type="button" id="transfer"
-                  class="btn btn-primary">Transfer
-          </button>
-        </div>
-      </div>
     </div>
-  </div>
+        </div>
+    </div>
+
+
+    <div class="modal" tabindex="-1" role="dialog" id="promote-modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Poll Promotion</h5>
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="promotion_amount" style="font-size:14px !important;">Amount
+                            in SBD</label>
+
+                        <input type="text" name="promotion_amount" id="promotion_amount"
+                               class="form-control" value="1">
+                    </div>
+                    <h5>Note</h5>
+
+                    <p style="font-size:14px !important;">
+                        Promoted polls are listed on our
+                        <a href="{% url 'index' %}?order=promoted">promoted page</a>.
+                        Additionaly, the highest amount spent
+                        on a poll between active polls gives a winner spot on the <a
+                            href="{% url 'index' %}">homepage</a>.
+                    </p>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Close
+                    </button>
+
+                    <button type="button" id="transfer"
+                            class="btn btn-primary">Transfer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 {% endblock content %}
 
 
 
 {% block extra_js %}
-  <script>
+    <script>
 
-      window.onload = function () {
-          $('#vote-submit').click(function (e) {
-              $('#vote-comment-modal').modal({
-                  show: 'false'
-              });
-              e.preventDefault();
-          });
+        window.onload = function () {
 
-          $('#promote-submit').click(function (e) {
-              $('#promote-modal').modal({
-                  show: 'false'
-              });
-              e.preventDefault();
-          });
+            $('#vote-submit').click(function (e) {
+                $('#vote-comment-modal').modal({
+                    show: 'false'
+                });
+                e.preventDefault();
+            });
+
+            $('#keychain-username-submit').click(function (e) {
+                if (!window.steem_keychain) {
+                    alert("Keychain is not installed!");
+                    return;
+                }
+                var username = $('#keychain-steem-username').val();
+
+                var choices = [];
+                if ($('input:checkbox[name=choice-id]').length > 0) {
+                    $.each($('input:checkbox[name=choice-id]:checked'), function (key, value) {
+                        choices.push(value.value);
+                    });
+                }
+                else {
+                    choices.push(($('input:radio[name=choice-id]').val()));
+                }
+
+                $.post("{% url 'vote-tx' %}", {
+                    username: username,
+                    poll_id: {{ poll.id }},
+                    choices: choices,
+                    additional_thoughts: ""
+                }, function (data) {
+
+                    steem_keychain.requestPost(
+                        data.username,
+                        data.title,
+                        data.body,
+                        data.parent_permlink,
+                        data.parent_username,
+                        data.json_metadata,
+                        data.permlink,
+                        data.comment_options,
+                        function (response) {
+                            console.log(response);
+                        });
 
 
-          $('#additional-thoughts').click(function (e) {
-              var additionalThought = $('#additional-thought-vote').val();
-              if (additionalThought !== "") {
-                  $('#vote-comment').val(additionalThought);
-              }
-              $('#vote-form').submit();
-          });
+                }, "json");
 
-          $('#transfer').click(function (e) {
-              var memo = "https://dpoll.xyz/detail/@{{ poll.username }}/{{ poll.permlink }}/";
-              var amount = $('#promotion_amount').val();
-              var scUrl = "https://steemconnect.com/sign/transfer?to=dpoll.promotion&amount=" +
-                  amount +
-                  " SBD&memo=" +
-                  memo +
-                  "&redirect_uri=" + memo + "?after_promotion=1";
-              window.location.href = scUrl;
+                e.preventDefault();
 
-          });
+            });
 
-          $('table').addClass('table');
-      };
+            $('#vote-with-keychain').click(function (e) {
+                $('#keychain-username').modal({
+                    show: 'false'
+                });
+                e.preventDefault();
+            });
 
-  </script>
+            $('#keychain-username-submit').click(function (e) {
+                $('#keychain-username').modal({
+                    show: 'false'
+                });
+                e.preventDefault();
+            });
+
+
+            $('#promote-submit').click(function (e) {
+                $('#promote-modal').modal({
+                    show: 'false'
+                });
+                e.preventDefault();
+            });
+
+
+            $('#additional-thoughts').click(function (e) {
+                var additionalThought = $('#additional-thought-vote').val();
+                if (additionalThought !== "") {
+                    $('#vote-comment').val(additionalThought);
+                }
+                $('#vote-form').submit();
+            });
+
+            $('#transfer').click(function (e) {
+                var memo = "https://dpoll.xyz/detail/@{{ poll.username }}/{{ poll.permlink }}/";
+                var amount = $('#promotion_amount').val();
+                var scUrl = "https://steemconnect.com/sign/transfer?to=dpoll.promotion&amount=" +
+                    amount +
+                    " SBD&memo=" +
+                    memo +
+                    "&redirect_uri=" + memo + "?after_promotion=1";
+                window.location.href = scUrl;
+
+            });
+
+            $('table').addClass('table');
+        };
+
+    </script>
 
 {% endblock %}
 
 {% block extra_css %}
-  <style>
-    .panel-body img {
-      display: block;
-      max-width: 100%;
-      height: auto;
-    }
-  </style>
+    <style>
+        .panel-body img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
 {% endblock %}

@@ -71,7 +71,7 @@ def get_comment(request, question, choices, permlink, tags=None):
     return comment
 
 
-def get_comment_options(parent_comment, reward_option=None):
+def get_comment_options(parent_comment, reward_option=None, return_dict=False):
     beneficiaries = []
     for account, weight in settings.BENEFICIARY_ACCOUNTS.items():
         beneficiaries.append(
@@ -97,6 +97,9 @@ def get_comment_options(parent_comment, reward_option=None):
         "percent_steem_dollars": percent_steem_dollars,
         "max_accepted_payout": max_accepted_payout,
     })
+
+    if return_dict:
+        return params
 
     return CommentOptions(**params)
 
