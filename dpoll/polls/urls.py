@@ -33,5 +33,8 @@ urlpatterns = [
     path('team/', views.team, name='team'),
     path('edit/@<str:author>/<str:permlink>/', views.edit_poll, name='edit'),
     path('polls_by_vote/', views.polls_by_vote_count, name='polls-by-vote'),
-    path('api/v1/audit/', AuditView.as_view(), name="api-audit")
+    path('api/v1/audit/', AuditView.as_view(), name="api-audit"),
+    path('web-api/vote_tx/', views.vote_transaction_details, name="vote-tx"),
+    path('web-api/sync/', views.sync_vote, name="sync-vote"),
+    path('web-api/vote_check/', views.vote_check, name="check-vote"),
 ]

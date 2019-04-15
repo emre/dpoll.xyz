@@ -1,5 +1,6 @@
 import copy
 import uuid
+import json
 from datetime import timedelta
 
 from dateutil.parser import parse
@@ -10,8 +11,9 @@ from django.contrib.auth.views import auth_logout
 from django.core.paginator import Paginator
 from django.db.models import Count
 from django.http import Http404
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
+from django.views.decorators.csrf import csrf_exempt
 from django.utils.timezone import now
 from steemconnect.client import Client
 from steemconnect.operations import Comment
@@ -25,7 +27,10 @@ from .utils import (
     get_top_voters, validate_input, add_or_get_question, add_choices,
     get_comment, fetch_poll_data, sanitize_filter_value)
 
-TEAM_MEMBERS  = [
+from lightsteem.client import Client as LightsteemClient
+
+
+TEAM_MEMBERS = [
         {
             "username": "emrebeyler",
             "title": "Developer",
@@ -572,3 +577,172 @@ def polls_by_vote_count(request):
 
     return render(request, "polls_by_vote.html", {
         "polls": polls, "start_time": start_time, "end_time": end_time})
+
+@csrf_exempt
+def vote_transaction_details(request):
+    poll_id = request.POST.get("poll_id")
+    choices = request.POST.getlist("choices[]")
+    additional_thoughts = request.POST.get("additional_thoughts")
+    username = request.POST.get("username")
+
+    try:
+        poll = Question.objects.get(pk=int(poll_id))
+    except Question.DoesNotExist:
+        raise Http404
+
+    choice_instances = []
+    for choice_id in choices:
+        try:
+            choice = Choice.objects.get(pk=int(choice_id))
+        except Choice.DoesNotExist:
+            raise Http404
+        choice_instances.append(choice)
+
+    choice_text = ""
+    for c in choice_instances:
+        choice_text += f" - {c.text.strip()}\n"
+
+    body = f"Voted for \n {choice_text}"
+    if additional_thoughts:
+        body += f"\n\n{additional_thoughts}"
+    permlink = str(uuid.uuid4())
+    parent_author = poll.username
+    parent_permlink = poll.permlink
+    json_metadata = {
+        "tags": settings.DEFAULT_TAGS,
+        "app": f"dpoll/{settings.DPOLL_APP_VERSION}",
+        "content_type": "poll_vote",
+        "votes": [c.text.strip() for c in choice_instances],
+    }
+
+    return JsonResponse({
+        "username": username,
+        "permlink": permlink,
+        "title": "",
+        "body": body,
+        "json_metadata": json_metadata,
+        "parent_username": parent_author,
+        "parent_permlink": parent_permlink,
+        "comment_options": "",
+    })
+
+
+def sync_vote(request):
+    trx_id = request.GET.get("trx_id")
+
+    try:
+        # block numbers must be integer
+        block_num = int(request.GET.get("block_num"))
+    except TypeError:
+        return HttpResponse('Invalid block ID', status=400)
+
+    c = LightsteemClient()
+    block_data = c.get_block(block_num)
+    if not block_data:
+        # block data may return null if it's invalid
+        return HttpResponse('Invalid block ID', status=400)
+
+    vote_tx = None
+    for transaction in block_data.get("transactions", []):
+        if transaction.get("transaction_id") == trx_id:
+            vote_tx = transaction
+            break
+
+    if not vote_tx:
+        return HttpResponse('Invalid transaction ID', status=400)
+
+    vote_op = None
+    for op_type, op_value in transaction.get("operations", []):
+        if op_type != "comment":
+            continue
+        vote_op = op_value
+
+    if not vote_op:
+        return HttpResponse("Couldn't find valid vote operation.", status=400)
+
+    # validate json metadata
+    if not vote_op.get("json_metadata"):
+        return HttpResponse("json_metadata is missing.", status=400)
+
+    json_metadata = json.loads(vote_op.get("json_metadata", ""))
+
+    # json_metadata should indicate content type
+    if json_metadata.get("content_type") != "poll_vote":
+        return HttpResponse("content_type field is missing.", status=400)
+
+    # check votes
+    votes = json_metadata.get("votes", [])
+    if not len(votes):
+        return HttpResponse("votes field is missing.", status=400)
+
+    # check the poll exists
+    try:
+        question = Question.objects.get(
+            username=vote_op.get("parent_author"),
+            permlink=vote_op.get("parent_permlink"),
+        )
+    except Question.DoesNotExist:
+        return HttpResponse("parent_author/parent_permlink is not a poll.", status=400)
+
+    # Validate the choice
+    choices = Choice.objects.filter(
+        question=question,
+    )
+    selected_choices = []
+    for choice in choices:
+        for user_vote in votes:
+            if choice.text == user_vote:
+                selected_choices.append(choice)
+
+    if not selected_choices:
+        return HttpResponse("Invalid choices in votes field.", status=400)
+
+    # check if the user exists in our database
+    # if it doesn't, create it.
+    try:
+        user = User.objects.get(username=vote_op.get("author"))
+    except User.DoesNotExist:
+        user = User.objects.create_user(
+            username=vote_op.get("author"))
+        user.save()
+
+    # check if we already registered a vote from that user
+    if Choice.objects.filter(
+            voted_users__username=vote_op.get("author"),
+            question=question).count() != 0:
+        return HttpResponse("You have already voted on that poll.", status=400)
+
+    # register the vote
+    for selected_choice in selected_choices:
+        selected_choice.voted_users.add(user)
+
+    # add vote audit entry
+    vote_audit = VoteAudit(
+        question=question,
+        voter=user,
+        block_id=block_num,
+        trx_id=trx_id
+    )
+    vote_audit.save()
+
+    return HttpResponse("Vote is registered to the database.", status=200)
+
+
+def vote_check(request):
+    try:
+        question = Question.objects.get(pk=request.GET.get("question_id"))
+    except Question.DoesNotExist:
+        raise Http404
+
+    if not request.GET.get("voter_username"):
+        raise Http404
+
+    users = set()
+    for choice in Choice.objects.filter(question=question):
+        for voted_user in choice.voted_users.all():
+            users.add(voted_user.username)
+
+    if request.GET.get("voter_username") in users:
+        return JsonResponse({"voted": True})
+    else:
+        return JsonResponse({"voted": False})
