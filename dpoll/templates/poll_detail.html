@@ -435,6 +435,7 @@
                                                 alert('Vote is registered. Thanks!');
                                                 $('#loading').fadeOut();
                                                 $('#keychain-username').hide();
+                                                window.location.href = "/";
                                             }
                                         ).fail(
                                             function (jqXHR, textStatus, errorThrown) {
