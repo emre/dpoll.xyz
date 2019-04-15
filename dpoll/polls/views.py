@@ -633,7 +633,7 @@ def sync_vote(request):
     try:
         # block numbers must be integer
         block_num = int(request.GET.get("block_num"))
-    except TypeError:
+    except (TypeError, ValueError):
         return HttpResponse('Invalid block ID', status=400)
 
     c = LightsteemClient()
