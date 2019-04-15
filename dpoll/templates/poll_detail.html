@@ -373,6 +373,10 @@
                     $.each($('input:checkbox[name=choice-id]:checked'), function (key, value) {
                         choices.push(value.value);
                     });
+                    if(choices.length === 0) {
+                        alert("Choose at least one option.");
+                        return;
+                    }
                 }
                 else {
                     choices.push(($('input:radio[name=choice-id]').val()));
@@ -395,7 +399,24 @@
                         data.permlink,
                         data.comment_options,
                         function (response) {
-                            console.log(response);
+                            if(!response.success) {
+                                alert("Couldn't broadcast. Please try again.");
+                                console.log(response);
+                            }
+                            else {
+                                var qs = '?block_num=' + response.result.block_num +
+                                    '&trx_id=' + response.result.id;
+                                $.get('{% url 'sync-vote' %}' + qs).done(
+                                    function(response){
+                                        alert('Vote is registered');
+                                     }
+                                   ).fail(
+                                    function(jqXHR, textStatus, errorThrown) {
+                                        alert(jqXHR.responseText);
+                                     }
+                                 );
+
+                            }
                         });
 
 

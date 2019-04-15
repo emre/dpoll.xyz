@@ -1,5 +1,6 @@
 import copy
 import uuid
+import json
 from datetime import timedelta
 
 from dateutil.parser import parse
@@ -26,7 +27,10 @@ from .utils import (
     get_top_voters, validate_input, add_or_get_question, add_choices,
     get_comment, fetch_poll_data, sanitize_filter_value)
 
-TEAM_MEMBERS  = [
+from lightsteem.client import Client as LightsteemClient
+
+
+TEAM_MEMBERS = [
         {
             "username": "emrebeyler",
             "title": "Developer",
@@ -614,3 +618,109 @@ def vote_transaction_details(request):
         "parent_permlink": parent_permlink,
         "comment_options": "",
     })
+
+
+def sync_vote(request):
+    trx_id = request.GET.get("trx_id")
+
+    try:
+        # block numbers must be integer
+        block_num = int(request.GET.get("block_num"))
+    except TypeError:
+        return HttpResponse('Invalid block ID', status=400)
+
+    c = LightsteemClient()
+    block_data = c.get_block(block_num)
+    if not block_data:
+        # block data may return null if it's invalid
+        return HttpResponse('Invalid block ID', status=400)
+
+    vote_tx = None
+    for transaction in block_data.get("transactions", []):
+        if transaction.get("transaction_id") == trx_id:
+            vote_tx = transaction
+            break
+
+    if not vote_tx:
+        return HttpResponse('Invalid transaction ID', status=400)
+
+
+    vote_op = None
+    for op_type, op_value in transaction.get("operations", []):
+        if op_type != "comment":
+            continue
+        vote_op = op_value
+
+    if not vote_op:
+        return HttpResponse("Couldn't find valid vote operation.", status=400)
+
+    # validate json metadata
+    if not vote_op.get("json_metadata"):
+        return HttpResponse("json_metadata is missing.", status=400)
+
+    json_metadata = json.loads(vote_op.get("json_metadata", ""))
+
+    # json_metadata should indicate content type
+    if json_metadata.get("content_type") != "poll_vote":
+        return HttpResponse("content_type field is missing.", status=400)
+
+    # check votes
+    votes = json_metadata.get("votes", [])
+    if not len(votes):
+        return HttpResponse("votes field is missing.", status=400)
+
+    # check the poll exists
+    try:
+        question = Question.objects.get(
+            username=vote_op.get("parent_author"),
+            permlink=vote_op.get("parent_permlink"),
+        )
+    except Question.DoesNotExist:
+        return HttpResponse("parent_author/parent_permlink is not a poll.", status=400)
+
+    # Validate the choice
+    choices = Choice.objects.filter(
+        question=question,
+    )
+    selected_choices = []
+    for choice in choices:
+        for user_vote in votes:
+            if choice.text == user_vote:
+                selected_choices.append(choice)
+
+    if not selected_choices:
+        return HttpResponse("Invalid choices in votes field.", status=400)
+
+    # check if the user exists in our database
+    # if it doesn't, create it.
+    try:
+        user = User.objects.get(username=vote_op.get("author"))
+    except User.DoesNotExist:
+        user = User.objects.create_user(
+            username=vote_op.get("author"))
+        user.save()
+
+    # check if we already registered a vote from that user
+    if Choice.objects.filter(
+            voted_users__username=vote_op.get("author"),
+            question=question).count() != 0:
+        return HttpResponse("You have already voted on that poll.", status=400)
+
+    # register the vote
+    for selected_choice in selected_choices:
+        selected_choice.voted_users.add(user)
+
+    # add vote audit entry
+    vote_audit = VoteAudit(
+        question=question,
+        voter=user,
+        block_id=block_num,
+        trx_id=trx_id
+    )
+    vote_audit.save()
+
+    return HttpResponse("Vote is registered to the database.", status=200)
+
+
+
+
