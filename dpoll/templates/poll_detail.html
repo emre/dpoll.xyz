@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load markdown_extras %}
 {% load numbers %}
+{% load static %}
+
 {% block content %}
 
     <div class="container">
@@ -65,8 +67,8 @@
                                     {% else %}
                                         <div class="text-muted">You need to be logged in to vote for
                                             the polls. <a href="{% url 'login' %}">Click</a> to log in
-                                            via Steemconnect or alternatively you can vote with <a href="#" id="vote-with-keychain">
-                                                Keychain</a>.
+                                            via Steemconnect or alternatively you can <a href="#" id="vote-with-keychain">
+                                                vote with Keychain</a>.
                                         </div>
                                     {% endif %}
 
@@ -287,10 +289,13 @@
                     Steem Username
                 </div>
                 <div class="modal-body">
-                    <div class="form-group">
+
+                    <span id="loading" style="display:none;">
+                        <img src="{% static "assets/loading.gif" %}">
+                    </span>
+                    <div class="form-group" id="keychain-steem-username-group">
             <input class="form-control" id="keychain-steem-username"/>
-                                 <div class="form-group">
-                </div>
+
                 <div class="modal-footer">
                     <button type="button" id="keychain-username-submit"
                             class="btn btn-primary">Continue
@@ -382,45 +387,65 @@
                     choices.push(($('input:radio[name=choice-id]').val()));
                 }
 
-                $.post("{% url 'vote-tx' %}", {
-                    username: username,
-                    poll_id: {{ poll.id }},
-                    choices: choices,
-                    additional_thoughts: ""
-                }, function (data) {
+                var voter_check_qs = "?question_id=" + {{  poll.id }}+ "&voter_username=" + username;
+                $.get("{% url 'check-vote' %}" + voter_check_qs, function (data) {
+                    if (data.voted) {
+                        alert("You have already voted on that poll.");
+                        $('#keychain-username').hide();
+                    }
+                    else {
+                        $.post("{% url 'vote-tx' %}", {
+                            username: username,
+                            poll_id: {{ poll.id }},
+                            choices: choices,
+                            additional_thoughts: ""
+                        }, function (data) {
 
-                    steem_keychain.requestPost(
-                        data.username,
-                        data.title,
-                        data.body,
-                        data.parent_permlink,
-                        data.parent_username,
-                        data.json_metadata,
-                        data.permlink,
-                        data.comment_options,
-                        function (response) {
-                            if(!response.success) {
-                                alert("Couldn't broadcast. Please try again.");
-                                console.log(response);
-                            }
-                            else {
-                                var qs = '?block_num=' + response.result.block_num +
-                                    '&trx_id=' + response.result.id;
-                                $.get('{% url 'sync-vote' %}' + qs).done(
-                                    function(response){
-                                        alert('Vote is registered');
-                                     }
-                                   ).fail(
-                                    function(jqXHR, textStatus, errorThrown) {
-                                        alert(jqXHR.responseText);
-                                     }
-                                 );
+                            steem_keychain.requestPost(
+                                data.username,
+                                data.title,
+                                data.body,
+                                data.parent_permlink,
+                                data.parent_username,
+                                data.json_metadata,
+                                data.permlink,
+                                data.comment_options,
+                                function (response) {
+                                    if (!response.success) {
+                                        alert("Couldn't broadcast. Please try again.");
+                                        console.log(response);
+                                        $('#keychain-steem-username-group').show();
+                                    }
+                                    else {
+                                        $('#keychain-steem-username-group').hide();
 
-                            }
-                        });
+                                        var qs = '?block_num=' + response.result.block_num +
+                                            '&trx_id=' + response.result.id;
+
+                                        $('#loading').show();
+
+                                        $.get('{% url 'sync-vote' %}' + qs).done(
+                                            function (response) {
+                                                alert('Vote is registered. Thanks!');
+                                                $('#loading').fadeOut();
+                                                $('#keychain-username').hide();
+                                            }
+                                        ).fail(
+                                            function (jqXHR, textStatus, errorThrown) {
+                                                alert(jqXHR.responseText);
+                                                $('#loading').fadeOut();
+                                                $('#keychain-steem-username-group').show();
+                                            }
+                                        );
+
+                                    }
+                                });
 
 
-                }, "json");
+                        }, "json");
+                    }
+                });
+
 
                 e.preventDefault();
 

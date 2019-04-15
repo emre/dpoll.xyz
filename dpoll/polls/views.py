@@ -651,7 +651,6 @@ def sync_vote(request):
     if not vote_tx:
         return HttpResponse('Invalid transaction ID', status=400)
 
-
     vote_op = None
     for op_type, op_value in transaction.get("operations", []):
         if op_type != "comment":
@@ -729,5 +728,21 @@ def sync_vote(request):
     return HttpResponse("Vote is registered to the database.", status=200)
 
 
+def vote_check(request):
+    try:
+        question = Question.objects.get(pk=request.GET.get("question_id"))
+    except Question.DoesNotExist:
+        raise Http404
 
+    if not request.GET.get("voter_username"):
+        raise Http404
 
+    users = set()
+    for choice in Choice.objects.filter(question=question):
+        for voted_user in choice.voted_users.all():
+            users.add(voted_user.username)
+
+    if request.GET.get("voter_username") in users:
+        return JsonResponse({"voted": True})
+    else:
+        return JsonResponse({"voted": False})
