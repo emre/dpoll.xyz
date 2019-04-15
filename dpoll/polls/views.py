@@ -584,11 +584,18 @@ def vote_transaction_details(request):
     choices = request.POST.getlist("choices[]")
     additional_thoughts = request.POST.get("additional_thoughts")
     username = request.POST.get("username")
-    poll = Question.objects.get(pk=int(poll_id))
+
+    try:
+        poll = Question.objects.get(pk=int(poll_id))
+    except Question.DoesNotExist:
+        raise Http404
 
     choice_instances = []
     for choice_id in choices:
-        choice = Choice.objects.get(pk=int(choice_id))
+        try:
+            choice = Choice.objects.get(pk=int(choice_id))
+        except Choice.DoesNotExist:
+            raise Http404
         choice_instances.append(choice)
 
     choice_text = ""
