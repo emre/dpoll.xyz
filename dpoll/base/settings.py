@@ -146,7 +146,6 @@ SESSION_COOKIE_AGE = 604800  # Default expire time of SC2 tokens
 DPOLL_APP_VERSION = "0.0.2"
 
 BENEFICIARY_ACCOUNTS = {
-    "dpoll.curation": 500,
     "dpoll.sponsors": 500,
 }
 
