@@ -4,7 +4,7 @@ cookies==2.2.1
 Django==2.1.1
 idna==2.7
 pytz==2018.5
-requests==2.19.1
+requests==2.20.0
 responses==0.9.0
 six==1.11.0
 steemconnect==0.0.5
