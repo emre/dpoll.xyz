@@ -132,8 +132,8 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger'
 }
 
-COMMUNITY_TAG = "dpoll"
-DEFAULT_TAGS = ["dpoll", "poll"]
+COMMUNITY_TAG = "hive-120019"
+DEFAULT_TAGS = ["hive-120019", "dpoll"]
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "assets"),
