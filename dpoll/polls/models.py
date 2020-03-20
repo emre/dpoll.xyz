@@ -72,7 +72,7 @@ class User(AbstractUser):
         return sa_stake_based_voting_point(self.vests)
 
     def update_info(self, steem_per_mvest=None, account_detail=None):
-        c = Client()
+        c = Client(nodes=["https://api.hivekings.com"])
 
         if not steem_per_mvest:
             # get chain properties

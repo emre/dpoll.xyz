@@ -25,12 +25,12 @@ class Command(BaseCommand):
     """
     def handle(self, *args, **options):
         users = User.objects.all()
-        c = LightsteemClient()
+        c = LightsteemClient(nodes=["https://api.hivekings.com", "https://api.hive.blog"])
         dygp = c.get_dynamic_global_properties()
         steem_per_mvest = (
                 float(Amount(dygp["total_vesting_fund_steem"]).amount) /
                 (float(Amount(dygp["total_vesting_shares"]).amount) / 1e6))
-        c = LightsteemClient(nodes=["https://api.steemit.com"])
+        c = LightsteemClient(nodes=["https://api.hivekings.com"])
         for chunk in chunks(users, 500):
             account_details = c.get_accounts([c.username for c in chunk])
             for account_detail in account_details:

@@ -175,7 +175,7 @@ def create_poll(request):
         add_choices(question, choices)
 
         # send it to the steem blockchain
-        sc_client = Client(access_token=request.session.get("sc_token"))
+        sc_client = Client(access_token=request.session.get("sc_token"), oauth_base_url="https://hivesigner.com/oauth2/", sc2_api_base_url="https://hivesigner.com/api/")
         comment = get_comment(request, question, choices, permlink, tags)
         comment_options = get_comment_options(
             comment,
@@ -274,7 +274,7 @@ def edit_poll(request, author, permlink):
         add_choices(question, choices, flush=True)
 
         # send it to the steem blockchain
-        sc_client = Client(access_token=request.session.get("sc_token"))
+        sc_client = Client(access_token=request.session.get("sc_token"), oauth_base_url="https://hivesigner.com/oauth2/", sc2_api_base_url="https://hivesigner.com/api/")
         comment = get_comment(request, question, choices, permlink, tags=tags)
         if not settings.BROADCAST_TO_BLOCKCHAIN:
             resp = {}
@@ -435,7 +435,7 @@ def vote(request, user, permlink):
         choice_instances.append(choice)
 
     # send it to the steem blockchain
-    sc_client = Client(access_token=request.session.get("sc_token"))
+    sc_client = Client(access_token=request.session.get("sc_token"), oauth_base_url="https://hivesigner.com/oauth2/", sc2_api_base_url="https://hivesigner.com/api/")
 
     choice_text = ""
     for c in choice_instances:
@@ -636,7 +636,7 @@ def sync_vote(request):
     except (TypeError, ValueError):
         return HttpResponse('Invalid block ID', status=400)
 
-    c = LightsteemClient()
+    c = LightsteemClient(nodes=["https://api.hivekings.com"])
     block_data = c.get_block(block_num)
     if not block_data:
         # block data may return null if it's invalid

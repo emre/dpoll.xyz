@@ -25,7 +25,10 @@ def get_sc_client():
     if not _sc_client:
         _sc_client = Client(
             client_id=settings.SC_CLIENT_ID,
-            client_secret=settings.SC_CLIENT_SECRET)
+            client_secret=settings.SC_CLIENT_SECRET,
+            oauth_base_url="https://hivesigner.com/oauth2/",
+            sc2_api_base_url="https://hivesigner.com/api/",
+        )
 
     return _sc_client
 

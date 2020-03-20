@@ -10,7 +10,7 @@ class SteemConnectBackend:
             return None
 
         # validate the access token with /me endpoint and get user information
-        client = Client(access_token=kwargs.get("access_token"))
+        client = Client(access_token=kwargs.get("access_token"), oauth_base_url="https://hivesigner.com/oauth2/", sc2_api_base_url="https://hivesigner.com/api/")
 
         user = client.me()
         if 'name' not in user:

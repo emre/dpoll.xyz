@@ -18,7 +18,7 @@ from .utils import get_comment_body
 
 client = discord.Client()
 lightsteem_client = LightsteemClient(
-    keys=[settings.CURATION_BOT_POSTING_KEY], loglevel=logging.DEBUG)
+        keys=[settings.CURATION_BOT_POSTING_KEY], loglevel=logging.DEBUG, nodes=["https://api.hivekings.com"])
 bot = commands.Bot(command_prefix='$', description="dPoll curation bot")
 
 
@@ -96,7 +96,7 @@ async def my_background_task():
 async def upvote(ctx, url: str, weight: int):
     acc = lightsteem_client.account(settings.CURATION_BOT_ACCOUNT)
 
-    if ctx.message.server.name != 'dpoll.xyz':
+    if ctx.message.server.name != 'dpoll.io':
         return
 
     vp = acc.vp()
@@ -171,5 +171,5 @@ async def upvote(ctx, url: str, weight: int):
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        bot.loop.create_task(my_background_task())
+        #bot.loop.create_task(my_background_task())
         bot.run(settings.CURATION_BOT_DISCORD_TOKEN)
