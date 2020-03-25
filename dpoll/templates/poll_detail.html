@@ -65,7 +65,12 @@
                                             Vote
                                         </button>
                                     {% else %}
-					
+				                                                <div class="text-muted">You need to be logged in to vote for
+                                            the polls. <a href="{% url 'login' %}">Click</a> to log in
+                                            via HiveSigner. 
+					  
+                                       
+                                        </div>	
                                     {% endif %}
 
                                     {% if request.user.username == poll.username and poll.is_editable %}
