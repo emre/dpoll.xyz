@@ -17,8 +17,8 @@
                                                 style="margin: 5px;"
                                                 href="#">
              <strong>Promote</strong></a> -
-        <a href="https://steemit.com/@{{ poll.username }}/{{ poll.permlink }}">View
-          in Steemit</a> - <a
+        <a href="https://hive.blog/@{{ poll.username }}/{{ poll.permlink }}">View
+          in Hive.blog</a> - <a
                                 href="/detail/@{{ poll.username }}/{{ poll.permlink }}/?audit=1">Audit</a>
            </span>
 
@@ -65,11 +65,7 @@
                                             Vote
                                         </button>
                                     {% else %}
-                                        <div class="text-muted">You need to be logged in to vote for
-                                            the polls. <a href="{% url 'login' %}">Click</a> to log in
-                                            via Steemconnect or alternatively you can <a href="#" id="vote-with-keychain">
-                                                vote with Keychain</a>.
-                                        </div>
+					
                                     {% endif %}
 
                                     {% if request.user.username == poll.username and poll.is_editable %}

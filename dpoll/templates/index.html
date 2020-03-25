@@ -29,7 +29,7 @@
                           <div class="mic-info">
                             By: <a
                               href="{% url 'profile' promoted_poll.username %}">{{ promoted_poll.username }}</a>
-                            on {{ promoted_poll.created_at }}. (Promotion cost: {{ promoted_poll.promotion_amount }} SBD)
+                            on {{ promoted_poll.created_at }}. (Promotion cost: {{ promoted_poll.promotion_amount }} HBD)
                           </div>
                         </div>
 
@@ -72,7 +72,7 @@
                           <div class="mic-info">
                             By: <a
                               href="{% url 'profile' poll.username %}">{{ poll.username }}</a>
-                            on {{ poll.created_at }} {% if request.GET.order == "promoted" %}(Promotion cost: {{ poll.promotion_amount }} SBD){% endif %}
+                            on {{ poll.created_at }} {% if request.GET.order == "promoted" %}(Promotion cost: {{ poll.promotion_amount }} HBD){% endif %}
                           </div>
                         </div>
 
