@@ -67,7 +67,8 @@
                                     {% else %}
 				                                                <div class="text-muted">You need to be logged in to vote for
                                             the polls. <a href="{% url 'login' %}">Click</a> to log in
-                                            via HiveSigner. 
+                                            via HiveSigner or alternatively you can <a href="#" id="vote-with-keychain">
+                                                vote with Keychain</a>. 
 					  
                                        
                                         </div>	
@@ -287,7 +288,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    Steem Username
+                    Hive Username
                 </div>
                 <div class="modal-body">
 
@@ -369,7 +370,7 @@
             });
 
             $('#keychain-username-submit').click(function (e) {
-                if (!window.steem_keychain) {
+                if (!window.hive_keychain) {
                     alert("Keychain is not installed!");
                     return;
                 }
@@ -408,7 +409,7 @@
                             additional_thoughts: ""
                         }, function (data) {
 
-                            steem_keychain.requestPost(
+                            hive_keychain.requestPost(
                                 data.username,
                                 data.title,
                                 data.body,
