@@ -323,7 +323,7 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="promotion_amount" style="font-size:14px !important;">Amount
-                            in SBD</label>
+                            in HBD</label>
 
                         <input type="text" name="promotion_amount" id="promotion_amount"
                                class="form-control" value="1">
@@ -494,9 +494,9 @@
             $('#transfer').click(function (e) {
                 var memo = "https://dpoll.xyz/detail/@{{ poll.username }}/{{ poll.permlink }}/";
                 var amount = $('#promotion_amount').val();
-                var scUrl = "https://steemconnect.com/sign/transfer?to=dpoll.promotion&amount=" +
+                var scUrl = "https://hivesigner.com/sign/transfer?to=dpoll.promotion&amount=" +
                     amount +
-                    " SBD&memo=" +
+                    " HBD&memo=" +
                     memo +
                     "&redirect_uri=" + memo + "?after_promotion=1";
                 window.location.href = scUrl;

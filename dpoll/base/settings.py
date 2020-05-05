@@ -11,7 +11,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '#1bvvt+mgj=y4hi!j&bz_*%c4b&5u*01knw8(jzi58qaxe-19b'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -146,7 +146,7 @@ SESSION_COOKIE_AGE = 604800  # Default expire time of SC2 tokens
 DPOLL_APP_VERSION = "0.0.2"
 
 BENEFICIARY_ACCOUNTS = {
-    "dpoll.sponsors": 500,
+    "dpoll.sponsors": 0,
 }
 
 CURATION_BOT_ACCOUNT = "dpoll.curation"
