@@ -1,4 +1,4 @@
-from steemconnect.client import Client
+from hivesigner.client import Client
 from django.contrib.auth import get_user_model
 
 

@@ -11,7 +11,8 @@ def cool_number(value, num_decimals=6):
     :param value: number
     :param num_decimals: Number of decimal digits
     """
-
+    if not value:
+        return "N/A"
     int_value = int(value)
     formatted_number = '{{:.{}f}}'.format(num_decimals)
     if int_value < 1000:

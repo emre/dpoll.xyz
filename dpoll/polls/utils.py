@@ -8,8 +8,8 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.db import connection
 from django.utils.text import slugify
-from steemconnect.client import Client
-from steemconnect.operations import CommentOptions, Comment
+from hivesigner.client import Client
+from hivesigner.operations import CommentOptions, Comment
 from django.utils.timezone import now
 from .post_templates import get_body
 from lightsteem.client import Client as LightSteemClient
@@ -88,16 +88,16 @@ def get_comment_options(parent_comment, reward_option=None, return_dict=False):
 
     # default values
     # %50 SBD/%50 SP and maximum accepted payout
-    percent_steem_dollars = 10000
-    max_accepted_payout = "1000000.000 SBD"
+    percent_hive_dollars = 10000
+    max_accepted_payout = "1000000.000 HBD"
     if reward_option:
         if reward_option == "100%":
-            percent_steem_dollars = 0
+            percent_hive_dollars = 0
         elif reward_option == "0%":
-            max_accepted_payout = "0.000 SBD"
+            max_accepted_payout = "0.000 HBD"
 
     params.update({
-        "percent_steem_dollars": percent_steem_dollars,
+        "percent_hive_dollars": percent_hive_dollars,
         "max_accepted_payout": max_accepted_payout,
     })
 

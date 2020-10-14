@@ -15,8 +15,8 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.timezone import now
-from steemconnect.client import Client
-from steemconnect.operations import Comment
+from hivesigner.client import Client
+from hivesigner.operations import Comment
 
 from base.utils import add_tz_info
 from .models import Question, Choice, User, VoteAudit
